@@ -174,9 +174,52 @@ interface Agent {
 - **`camera`**：相机拍照/录像
 - **`screen`**：屏幕录制
 - **`location`**：获取位置
-- **`cron`**：Cron 任务管理
 - **`discord`**：Discord 操作
 - **`slack`**：Slack 操作
+
+**Cron 工具（增强版）**
+
+- **`cron`**：Gateway Cron 任务管理
+  - `cron.status`：检查 Cron 调度器状态
+  - `cron.list`：列出任务（使用 `includeDisabled:true` 包含已禁用任务）
+  - `cron.add`：创建任务（需要任务对象）
+  - `cron.update`：修改任务（需要 `jobId` + 补丁对象）
+  - `cron.remove`：删除任务（需要 `jobId`）
+  - `cron.run`：立即触发任务（需要 `jobId`）
+  - `cron.runs`：获取任务运行历史（需要 `jobId`）
+  - `cron.wake`：发送唤醒事件（需要 `text`，可选 `mode`）
+
+**Cron 任务架构：**
+
+```typescript
+// 创建任务
+{
+  "name": "string (可选)",
+  "schedule": { ... },      // 必需：何时运行
+  "payload": { ... },       // 必需：执行什么
+  "sessionTarget": "main" | "isolated",  // 必需
+  "enabled": true | false   // 可选，默认 true
+}
+
+// 调度类型 (schedule.kind)
+"at": { "kind": "at", "atMs": <unix-ms-timestamp> }        // 一次性任务
+"every": { "kind": "every", "everyMs": <间隔-ms>, "anchorMs": <可选开始-ms> }  // 循环间隔
+"cron": { "kind": "cron", "expr": "<cron表达式>", "tz": "<可选时区>" }  // Cron 表达式
+
+// 负载类型 (payload.kind)
+"systemEvent": { "kind": "systemEvent", "text": "<消息>" }  // 注入系统事件到会话
+"agentTurn": { "kind": "agentTurn", "message": "<提示>", "model": "<可选>", "thinking": "<可选>", "timeoutSeconds": <可选> }  // 运行 Agent 轮次
+```
+
+**关键约束：**
+- `sessionTarget="main"` 必须 `payload.kind="systemEvent"`
+- `sessionTarget="isolated"` 必须 `payload.kind="agentTurn"`
+
+**唤醒模式：**
+- `next-heartbeat`（默认）：在下次心跳时唤醒
+- `now`：立即唤醒
+
+使用 `jobId` 作为规范标识符；`id` 兼容。使用 `contextMessages` (0-10) 添加前序消息作为上下文。
 
 ## 关键依赖与配置
 
@@ -542,6 +585,20 @@ EOF
 - `*.test.ts` - 其他测试文件
 
 ## 变更记录 (Changelog)
+
+### 2026-01-26 10:30:00 - 同步上游新增功能
+
+**新增内容**
+- ✅ 更新 Cron 工具描述（增强版）
+  - 添加详细操作说明（status/list/add/update/remove/run/runs/wake）
+  - 添加任务架构（Job Schema）
+  - 添加调度类型（Schedule Types：at/every/cron）
+  - 添加负载类型（Payload Types：systemEvent/agentTurn）
+  - 添加关键约束说明
+  - 添加唤醒模式说明
+
+**上游提交**
+- Agents: expand cron tool description (#1988)
 
 ### 2026-01-25 16:21:01 - 初始化文档
 
