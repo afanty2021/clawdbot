@@ -7,6 +7,10 @@ Status: unreleased.
 
 ### Changes
 - Doctor: warn on gateway exposure without auth. (#2016) Thanks @Alex-Alaniz.
+- Deployment: add Render Blueprint support for one-click deployment. (#1975)
+- Providers: add Vercel AI Gateway provider documentation. (#1901)
+- Skills: add missing dependency metadata. (#1995)
+- Agents: expand cron tool description with detailed action schema. (#1988)
 
 ## 2026.1.24-3
 

@@ -452,7 +452,117 @@ clawdbot agent --message "Test"
 - `doctor-*.test.ts` - doctor 子命令测试
 - `*.test.ts` - 其他测试文件
 
+## 部署选项
+
+### Render 部署（新增）
+
+Clawdbot 现在支持通过 Render Blueprint 进行一键部署。Blueprint 使用基础设施即代码方式定义整个堆栈。
+
+**快速开始：**
+
+```bash
+# 点击部署链接（需要 Render 账号）
+# https://render.com/deploy?repo=https://github.com/clawdbot/clawdbot
+```
+
+**配置文件 (`render.yaml`)：**
+
+```yaml
+services:
+  - type: web
+    name: clawdbot
+    runtime: docker
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: SETUP_PASSWORD
+        sync: false          # 部署时提示输入
+      - key: CLAWDBOT_STATE_DIR
+        value: /data/.clawdbot
+      - key: CLAWDBOT_WORKSPACE_DIR
+        value: /data/workspace
+      - key: CLAWDBOT_GATEWAY_TOKEN
+        generateValue: true  # 自动生成安全令牌
+    disk:
+      name: clawdbot-data
+      mountPath: /data
+      sizeGB: 1
+```
+
+**计划选择：**
+
+| 计划 | 闲置休眠 | 磁盘 | 适用场景 |
+|------|---------|------|---------|
+| Free | 15 分钟后 | 不可用 | 测试、演示 |
+| Starter | 从不 | 1GB+ | 个人使用、小团队 |
+| Standard+ | 从不 | 1GB+ | 生产环境、多渠道 |
+
+**部署后步骤：**
+
+1. 导航到 `https://<service-name>.onrender.com/setup`
+2. 输入 `SETUP_PASSWORD`
+3. 选择模型提供商并粘贴 API 密钥
+
+### Vercel AI Gateway 提供商（新增）
+
+[Vercel AI Gateway](https://vercel.com/ai-gateway) 提供统一 API 访问数百个模型。
+
+**快速设置：**
+
+```bash
+# 推荐方式：通过向导设置
+clawdbot onboard --auth-choice ai-gateway-api-key
+```
+
+**配置默认模型：**
+
+```json5
+{
+  agents: {
+    defaults: {
+      model: { primary: "vercel-ai-gateway/anthropic/claude-opus-4.5" }
+    }
+  }
+}
+```
+
+**非交互式设置：**
+
+```bash
+clawdbot onboard --non-interactive \
+  --mode local \
+  --auth-choice ai-gateway-api-key \
+  --ai-gateway-api-key "$AI_GATEWAY_API_KEY"
+```
+
+**环境变量：**
+
+- 提供商：`vercel-ai-gateway`
+- 认证：`AI_GATEWAY_API_KEY`
+- API：Anthropic Messages 兼容
+
+**注意事项：**
+
+如果 Gateway 作为守护进程（launchd/systemd）运行，确保 `AI_GATEWAY_API_KEY` 对该进程可用（例如在 `~/.clawdbot/.env` 或通过 `env.shellEnv`）。
+
 ## 变更记录 (Changelog)
+
+### 2026-01-26 10:30:00 - 同步上游新增功能
+
+**新增内容**
+- ✅ 添加 Render 部署支持文档
+- ✅ 添加 Vercel AI Gateway 提供商文档
+- ✅ 更新 Cron 工具描述（agents 模块）
+- ✅ 同步上游 skills 文件更新
+- ✅ 更新 docs.json 导航
+
+**上游提交**
+- Docs: add Render deployment guide (#1975)
+- Skills: add missing dependency metadata (#1995)
+- Agents: expand cron tool description (#1988)
+- Docs: add Vercel AI Gateway sidebar entry (#1901)
 
 ### 2026-01-25 16:21:01 - 初始化文档
 
