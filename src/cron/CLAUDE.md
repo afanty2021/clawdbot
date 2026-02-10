@@ -1,0 +1,220 @@
+# 定时任务模块 (src/cron/)
+
+[根目录](../../CLAUDE.md) > [src](../CLAUDE.md) > **cron**
+
+## 模块职责
+
+提供定时任务调度系统，支持定时触发 AI 代理任务、消息发送、系统维护等操作。该模块负责任务的计划、调度、执行和状态追踪。
+
+## 目录结构
+
+```
+src/cron/
+├── service/             # 定时任务服务
+│   ├── service.ts      # 服务主逻辑
+│   ├── jobs.ts         # 任务定义
+│   ├── store.ts        # 任务存储
+│   ├── delivery.ts      # 任务投递
+│   ├── restart-catchup.ts  # 重启恢复
+│   └── types.ts        # 类型定义
+├── isolated-agent/     # 隔离代理
+│   ├── isolated-agent.ts  # 隔离代理
+│   ├── normalize.ts    # 参数规范化
+│   └── run-log.ts      # 运行日志
+├── schedule.ts         # 调度器
+├── normalize.ts        # 规范化工具
+├── delivery.ts         # 投递处理
+├── parse.ts            # 解析工具
+├── payload-migration.ts  # 负载迁移
+├── cron-protocol-conformance.test.ts  # 协议一致性
+├── run-log.ts          # 运行日志
+├── types.ts            # 类型定义
+└── validate-timestamp.ts  # 时间戳验证
+```
+
+## 入口与启动
+
+### 主入口
+- **`src/cron/service/service.ts`** - 服务入口
+- **`src/cron/schedule.ts`** - 调度器
+
+### 启动流程
+```typescript
+import { CronService } from "./cron/service/service.ts";
+
+const service = new CronService({
+  dataDir: "~/.local/share/openclaw/cron",
+});
+
+await service.start();
+```
+
+## 对外接口
+
+### CronService 接口
+```typescript
+interface CronService {
+  start(): Promise<void>;
+  stop(): Promise<void>;
+  schedule(job: CronJob): Promise<string>;
+  unschedule(jobId: string): Promise<void>;
+  getJobs(): CronJob[];
+  getJob(id: string): CronJob | null;
+}
+```
+
+### CronJob 接口
+```typescript
+interface CronJob {
+  id: string;
+  expression: string;      // Cron 表达式
+  type: CronJobType;
+  payload: unknown;
+  enabled: boolean;
+  lastRun?: Date;
+  nextRun?: Date;
+  runCount: number;
+  errorCount: number;
+  createdAt: Date;
+}
+```
+
+### CronJobType 枚举
+```typescript
+enum CronJobType {
+  AGENT_RUN = "agent_run",
+  MESSAGE_SEND = "message_send",
+  SYSTEM_MAINTENANCE = "system_maintenance",
+  DATA_BACKUP = "data_backup",
+  CUSTOM = "custom",
+}
+```
+
+## 子模块详解
+
+### 1. 任务服务 (`service/`)
+
+**职责**：定时任务的生命周期管理
+
+**关键文件**：
+- `service.ts` - 服务主逻辑
+- `store.ts` - 任务持久化
+- `jobs.ts` - 任务管理
+
+**功能**：
+- 任务调度
+- 任务执行
+- 错误重试
+- 状态追踪
+
+### 2. 隔离代理 (`isolated-agent/`)
+
+**职责**：在隔离环境中执行 AI 代理任务
+
+**关键文件**：
+- `isolated-agent.ts` - 代理入口
+- `normalize.ts` - 参数规范化
+- `run-log.ts` - 运行日志
+
+**特性**：
+- Docker 隔离
+- 资源限制
+- 超时控制
+
+### 3. 任务调度 (`schedule.ts`)
+
+**职责**：解析 Cron 表达式并计算下次执行时间
+
+**Cron 表达式格式**：
+```bash
+# ┌───────────── 分钟 (0 - 59)
+# │ ┌───────────── 小时 (0 - 23)
+# │ │ ┌───────────── 日 (1 - 31)
+# │ │ │ ┌───────────── 月 (1 - 12)
+# │ │ │ │ ┌───────────── 星期 (0 - 6)
+# │ │ │ │ │
+# * * * * *
+```
+
+### 4. 任务投递 (`delivery.ts`)
+
+**职责**：将任务投递给执行器
+
+**投递模式**：
+- `IMMEDIATE` - 立即执行
+- `DEFERRED` - 延迟执行
+- `RETRY` - 失败重试
+
+## 关键依赖与配置
+
+### 配置文件
+```typescript
+interface CronConfig {
+  enabled: boolean;
+  dataDir: string;
+  maxConcurrentJobs: number;
+  defaultTimeout: number;
+  retryAttempts: number;
+  retryDelay: number;
+}
+```
+
+### 环境变量
+```bash
+CRON_ENABLED           # 是否启用
+CRON_DATA_DIR         # 数据目录
+CRON_MAX_JOBS         # 最大并发数
+CRON_TIMEOUT_MS       # 默认超时
+```
+
+## 测试与质量
+
+### 测试文件
+- `src/cron/**/*.test.ts`
+
+### 测试命令
+```bash
+pnpm test src/cron
+```
+
+## 常见问题 (FAQ)
+
+### Q: 如何创建定时任务？
+A: 使用 `cron.schedule()` 方法，传入 Cron 表达式和任务配置。
+
+### Q: 任务执行失败会重试吗？
+A: 根据配置的重试策略自动重试。
+
+### Q: 如何查看任务历史？
+A: 使用 `run-log.ts` 中的查询接口。
+
+## 相关文件清单
+
+### 核心文件
+- `src/cron/service/service.ts` - 服务入口
+- `src/cron/schedule.ts` - 调度器
+- `src/cron/isolated-agent.ts` - 隔离代理
+
+### CLI 文件
+- `src/cli/cron-cli.ts` - Cron CLI
+
+## 变更记录
+
+### 2026-02-10 - 创建定时任务模块文档
+- ✅ 创建 `src/cron/CLAUDE.md` 文档
+- 📋 记录调度和服务系统
+- 🔗 建立定时任务导航
+
+
+<claude-mem-context>
+# Recent Activity
+
+<!-- This section is auto-generated by claude-mem. Edit content outside the tags. -->
+
+### Feb 10, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #2212 | 10:30 AM | 🟣 | Documentation coverage campaign achieved 100% core module coverage | ~546 |
+| #2207 | 10:25 AM | 🟣 | Documentation coverage significantly improved - 10 new CLAUDE.md files created | ~538 |
+</claude-mem-context>
