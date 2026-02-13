@@ -152,6 +152,5 @@ A: 硬编码在模块中不可配置，如需修改需调整代码。
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #2590 | 12:08 AM | ✅ | Created comprehensive Chinese documentation for 6 OpenClaw modules | ~652 |
 | #2587 | 12:07 AM | ✅ | Created comprehensive Chinese documentation for 6 OpenClaw modules | ~576 |
 </claude-mem-context>
