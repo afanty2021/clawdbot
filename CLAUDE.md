@@ -337,6 +337,11 @@ pnpm test:coverage
 
 ## 🔄 变更记录
 
+### 2026-02-14 - 文档活动记录更新
+- ✅ 更新 `src/cli/node-cli/CLAUDE.md` 添加活动记录
+- ✅ 更新 `ui/CLAUDE.md` 添加活动记录
+- 📝 为模块文档添加 claude-mem-context 活动记录
+
 ### 2026-02-13 - 扩展插件文档完成 100% 覆盖
 - ✅ 为所有 32 个扩展插件创建 CLAUDE.md 文档
 - ✅ 新增 11 个扩展文档：copilot-proxy、device-pair、diagnostics-otel、google-antigravity-auth、google-gemini-cli-auth、llm-task、lobster、minimax-portal-auth、open-prose、phone-control、qwen-portal-auth
