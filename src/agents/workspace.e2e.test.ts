@@ -5,7 +5,6 @@ import { makeTempWorkspace, writeWorkspaceFile } from "../test-helpers/workspace
 import {
   DEFAULT_AGENTS_FILENAME,
   DEFAULT_BOOTSTRAP_FILENAME,
-  DEFAULT_HEARTBEAT_FILENAME,
   DEFAULT_MEMORY_ALT_FILENAME,
   DEFAULT_MEMORY_FILENAME,
   ensureAgentWorkspace,
@@ -25,17 +24,37 @@ describe("resolveDefaultAgentWorkspaceDir", () => {
 });
 
 describe("ensureAgentWorkspace", () => {
-  it("does not create HEARTBEAT.md during bootstrap file initialization", async () => {
-    const tempDir = await makeTempWorkspace("openclaw-workspace-init-");
+  it("creates BOOTSTRAP.md for a brand new workspace", async () => {
+    const tempDir = await makeTempWorkspace("openclaw-workspace-");
 
-    const result = await ensureAgentWorkspace({ dir: tempDir, ensureBootstrapFiles: true });
+    await ensureAgentWorkspace({ dir: tempDir, ensureBootstrapFiles: true });
 
-    await expect(fs.access(path.join(tempDir, DEFAULT_AGENTS_FILENAME))).resolves.toBeUndefined();
     await expect(
       fs.access(path.join(tempDir, DEFAULT_BOOTSTRAP_FILENAME)),
     ).resolves.toBeUndefined();
-    await expect(fs.access(path.join(tempDir, DEFAULT_HEARTBEAT_FILENAME))).rejects.toThrow();
-    expect("heartbeatPath" in result).toBe(false);
+  });
+
+  it("creates BOOTSTRAP.md even when workspace already has other bootstrap files", async () => {
+    const tempDir = await makeTempWorkspace("openclaw-workspace-");
+    await writeWorkspaceFile({ dir: tempDir, name: DEFAULT_AGENTS_FILENAME, content: "existing" });
+
+    await ensureAgentWorkspace({ dir: tempDir, ensureBootstrapFiles: true });
+
+    await expect(
+      fs.access(path.join(tempDir, DEFAULT_BOOTSTRAP_FILENAME)),
+    ).resolves.toBeUndefined();
+  });
+
+  it("does not recreate BOOTSTRAP.md after onboarding deletion", async () => {
+    const tempDir = await makeTempWorkspace("openclaw-workspace-");
+    await ensureAgentWorkspace({ dir: tempDir, ensureBootstrapFiles: true });
+    await fs.unlink(path.join(tempDir, DEFAULT_BOOTSTRAP_FILENAME));
+
+    await ensureAgentWorkspace({ dir: tempDir, ensureBootstrapFiles: true });
+
+    await expect(fs.access(path.join(tempDir, DEFAULT_BOOTSTRAP_FILENAME))).rejects.toMatchObject({
+      code: "ENOENT",
+    });
   });
 });
 
