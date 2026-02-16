@@ -1,6 +1,6 @@
 # OpenClaw (Clawdbot) - AI 上下文索引
 
-> 更新时间：2026-02-16
+> 更新时间：2026-02-16 18:33:23
 
 ## 📊 文档覆盖率统计
 
@@ -81,8 +81,8 @@ graph TD
 
 ### 多渠道支持
 - **即时通讯平台**: WhatsApp、Telegram、Slack、Discord、Google Chat、Signal
-- **企业协作**: Microsoft Teams、Matrix、Nextcloud Talk
-- **扩展渠道**: BlueBubbles (iMessage)、Zalo、Twitch、Nostr、IRC、 LINE
+- **企业协作**: Microsoft Teams、Matrix、Nextcloud Talk、Mattermost
+- **扩展渠道**: BlueBubbles (iMessage)、Zalo、Twitch、Nostr、IRC、LINE
 - **语音渠道**: Voice Call、Talk Voice
 - **认证扩展**: Google Antigravity Auth、Google Gemini CLI Auth、Minimax Portal Auth、Qwen Portal Auth
 - **Web 界面**: WebChat 控制界面
@@ -128,13 +128,13 @@ graph TD
 - **包管理**: pnpm 10.23.0
 
 **依赖框架**:
-- **AI SDK**: @mariozechner/pi-agent-core (0.52.8)
+- **AI SDK**: @mariozechner/pi-agent-core (0.52.12)
 - **浏览器**: playwright-core (1.58.2)
 - **通信**:
   - WhatsApp: @whiskeysockets/baileys (7.0.0-rc.9)
-  - Telegram: grammy (1.39.3)
+  - Telegram: grammy (1.40.0)
   - Slack: @slack/bolt (4.6.0)
-  - Discord: discord-api-types (0.38.38)
+  - Discord: discord-api-types (0.38.39)
 - **Web**: Hono (4.11.8)、Express (5.2.1)
 - **数据库**: sqlite-vec (0.1.7-alpha.2)
 
@@ -149,8 +149,8 @@ graph TD
 - **Android**: Kotlin + Jetpack Compose
 
 **质量工具**:
-- **Lint**: oxlint (1.43.0)
-- **Format**: oxfmt (0.28.0)
+- **Lint**: oxlint (1.47.0)
+- **Format**: oxfmt (0.32.0)
 - **测试**: Vitest (4.0.18)
 - **覆盖率**: @vitest/coverage-v8 (4.0.18)
 
@@ -343,6 +343,15 @@ pnpm test:coverage
 4. **配置目录**: `~/.config/openclaw/openclaw.json` (仅限 base_url)
 
 ## 🔄 变更记录
+
+### 2026-02-16 18:33:23 - 自适应初始化完成 🎉
+- ✅ 执行 OpenClaw 项目的自适应初始化
+- ✅ 验证文档覆盖率：71 个 CLAUDE.md 文件（100% 覆盖率）
+- ✅ 更新扩展插件模块文档，添加缺失的 6 个扩展
+- ✅ 更新根级文档以反映最新的扩展插件数量（36 个）
+- 📈 所有模块文档覆盖率：100%
+- 🎯 已生成 Mermaid 结构图
+- 🎯 已为 71 个模块添加导航面包屑
 
 ### 2026-02-16 - 扩展插件文档完成 100% 覆盖 🎉
 - ✅ 为 `thread-ownership` 扩展创建 CLAUDE.md 文档
