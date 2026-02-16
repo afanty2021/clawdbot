@@ -1,24 +1,24 @@
 # OpenClaw (Clawdbot) - AI 上下文索引
 
-> 更新时间：2026-02-10
+> 更新时间：2026-02-16
 
 ## 📊 文档覆盖率统计
 
 | 模块分类 | 模块数 | 已文档化 | 覆盖率 |
 |---------|-------|---------|--------|
-| **核心模块 (src/)** | 18 | 18 | 100% |
+| **核心模块 (src/)** | 20 | 20 | 100% |
 | **CLI 子模块** | 4 | 4 | 100% |
-| **扩展插件** | 32 | 32 | 100% |
+| **扩展插件** | 36 | 36 | 100% |
 | **UI 模块** | 1 | 1 | 100% |
 | **原生应用** | 1 | 1 | 100% |
 | **技能模块** | 1 | 1 | 100% |
 | **包模块** | 1 | 1 | 100% |
 | **脚本模块** | 2 | 2 | 100% |
-| **其他模块** | 9 | 9 | 100% |
+| **其他模块** | 3 | 3 | 100% |
 
-**总计**：69 个 CLAUDE.md 文件
+**总计**：71 个 CLAUDE.md 文件
 
-> 注：所有核心模块已实现 100% 文档覆盖
+> 注：36/36 扩展插件已文档化 (100% 覆盖率) ✨
 
 ## 项目概览
 
@@ -54,6 +54,10 @@ graph TD
     C --> C6["imessage - iMessage 适配器"];
     C --> C7["msteams - Teams 适配器"];
     C --> C8["matrix - Matrix 适配器"];
+    C --> C9["feishu - 飞书适配器"];
+    C --> C10["nostr - Nostr 适配器"];
+    C --> C11["twitch - Twitch 适配器"];
+    C --> C12["... +24 更多"];
 
     E --> E1["macos - macOS 应用"];
     E --> E2["ios - iOS 节点"];
@@ -77,8 +81,10 @@ graph TD
 
 ### 多渠道支持
 - **即时通讯平台**: WhatsApp、Telegram、Slack、Discord、Google Chat、Signal
-- **企业协作**: Microsoft Teams、Matrix
-- **扩展渠道**: BlueBubbles (iMessage)、Zalo、Twitch、Nostr
+- **企业协作**: Microsoft Teams、Matrix、Nextcloud Talk
+- **扩展渠道**: BlueBubbles (iMessage)、Zalo、Twitch、Nostr、IRC、 LINE
+- **语音渠道**: Voice Call、Talk Voice
+- **认证扩展**: Google Antigravity Auth、Google Gemini CLI Auth、Minimax Portal Auth、Qwen Portal Auth
 - **Web 界面**: WebChat 控制界面
 
 ### AI 代理能力
@@ -203,7 +209,7 @@ graph TD
 - **运行时核心**: `*/src/runtime.ts` - 扩展运行时入口
 - **配置模式**: `*/src/config-schema.ts` - Zod 配置模式定义
 - **测试文件**: `*/src/*.test.ts` - 扩展功能测试
-- **扩展目录**: 支持 32+ 通信渠道扩展
+- **扩展目录**: 支持 36 个通信渠道扩展
 
 ## 🚀 运行与开发
 
@@ -338,6 +344,19 @@ pnpm test:coverage
 
 ## 🔄 变更记录
 
+### 2026-02-16 - 扩展插件文档完成 100% 覆盖 🎉
+- ✅ 为 `thread-ownership` 扩展创建 CLAUDE.md 文档
+- ✅ 更新文档覆盖率统计至 100% (36/36 扩展插件)
+- ✅ 更新根级文档注释和总计数量
+- 📈 文档总数从 70 增至 71 个 CLAUDE.md 文件
+
+### 2026-02-16 - 扩展插件统计更新
+- ✅ 更新扩展插件数量至 36 个
+- ✅ 添加新扩展：thread-ownership (待添加 CLAUDE.md)
+- ✅ 更新文档覆盖率统计
+- ✅ 更新核心模块数量至 20 个
+- 📝 待完成：为 thread-ownership 扩展创建 CLAUDE.md
+
 ### 2026-02-14 - 文档覆盖率统计修正
 - ✅ 修正文档统计数量为 69 个 CLAUDE.md 文件
 - 📈 更新模块分类以匹配实际目录结构
@@ -378,8 +397,8 @@ pnpm test:coverage
 - **配置文件**: ~100+
 
 ### 模块覆盖
-- **核心模块 (src/)**: ✅ 100% 覆盖 (18 个子模块)
-- **扩展模块 (extensions/)**: ✅ 100% 覆盖 (32 个扩展)
+- **核心模块 (src/)**: ✅ 100% 覆盖 (20 个子模块)
+- **扩展模块 (extensions/)**: ✅ 100% 覆盖 (36/36 个扩展) 🎉
 - **UI 模块 (ui/)**: ✅ 100% 覆盖
 - **原生应用 (apps/)**: ✅ 100% 覆盖
 - **技能模块 (skills/)**: ✅ 100% 覆盖
