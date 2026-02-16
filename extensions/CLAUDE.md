@@ -30,17 +30,22 @@ extensions/
 ├── zalouser/          # Zalo Personal 适配器
 ├── tlon/              # Tlon/Urbit 适配器
 ├── voice-call/        # 语音通话扩展
+├── talk-voice/        # Talk Voice 扩展
 ├── memory-core/       # 内存核心扩展
 ├── memory-lancedb/    # LanceDB 内存扩展
 ├── llm-task/          # LLM 任务扩展
 ├── lobster/           # Lobster 扩展
 ├── copilot-proxy/     # Copilot 代理扩展
 ├── diagnostics-otel/  # OpenTelemetry 诊断扩展
+├── device-pair/       # 设备配对扩展
+├── phone-control/     # 手机控制扩展
 ├── google-antigravity-auth/    # Google Antigravity 认证
 ├── google-gemini-cli-auth/      # Google Gemini CLI 认证
 ├── minimax-portal-auth/         # MiniMax Portal 认证
 ├── qwen-portal-auth/            # Qwen Portal 认证
-└── open-prose/        # Open Prose 扩展
+├── open-prose/        # Open Prose 扩展
+├── irc/               # IRC 适配器
+└── thread-ownership/  # 线程所有权扩展
 ```
 
 ## 入口与启动
@@ -258,49 +263,74 @@ interface OutboundTarget {
 - **能力**：消息发送、DM
 - **测试覆盖率**：N/A
 
+#### 20. IRC (`irc/`)
+- **特点**：互联网中继聊天协议
+- **能力**：消息发送、频道管理
+- **测试覆盖率**：N/A
+
 ### 功能扩展
 
-#### 20. Voice Call (`voice-call/`)
+#### 21. Voice Call (`voice-call/`)
 - **职责**：语音通话功能
 - **提供商**：Twilio、Plivo
 - **测试覆盖率**：85%
 
-#### 21. Memory Core (`memory-core/`)
+#### 22. Talk Voice (`talk-voice/`)
+- **职责**：Talk Mode 语音功能
+- **能力**：语音输入输出
+
+#### 23. Memory Core (`memory-core/`)
 - **职责**：内存管理核心
 - **测试覆盖率**：N/A
 
-#### 22. Memory LanceDB (`memory-lancedb/`)
+#### 24. Memory LanceDB (`memory-lancedb/`)
 - **职责**：LanceDB 向量存储
 - **测试覆盖率**：N/A
 
-#### 23. LLM Task (`llm-task/`)
+#### 25. LLM Task (`llm-task/`)
 - **职责**：LLM 任务处理
 - **测试覆盖率**：N/A
 
-#### 24. Copilot Proxy (`copilot-proxy/`)
+#### 26. Lobster (`lobster/`)
+- **职责**：Lobster 扩展功能
+- **测试覆盖率**：N/A
+
+#### 27. Copilot Proxy (`copilot-proxy/`)
 - **职责**：GitHub Copilot 代理
 - **测试覆盖率**：N/A
 
-#### 25. Diagnostics OTel (`diagnostics-otel/`)
+#### 28. Diagnostics OTel (`diagnostics-otel/`)
 - **职责**：OpenTelemetry 诊断
 - **测试覆盖率**：N/A
 
+#### 29. Device Pair (`device-pair/`)
+- **职责**：设备配对功能
+- **能力**：多设备联动
+
+#### 30. Phone Control (`phone-control/`)
+- **职责**：手机远程控制
+- **能力**：远程操作手机
+
+#### 31. Thread Ownership (`thread-ownership/`)
+- **职责**：线程所有权管理
+- **能力**：消息线程归属
+
 ### 认证扩展
 
-#### 26. Google Antigravity Auth (`google-antigravity-auth/`)
+#### 32. Google Antigravity Auth (`google-antigravity-auth/`)
 - **职责**：Google Antigravity 认证
 
-#### 27. Google Gemini CLI Auth (`google-gemini-cli-auth/`)
+#### 33. Google Gemini CLI Auth (`google-gemini-cli-auth/`)
 - **职责**：Google Gemini CLI 认证
 
-#### 28. MiniMax Portal Auth (`minimax-portal-auth/`)
+#### 34. MiniMax Portal Auth (`minimax-portal-auth/`)
 - **职责**：MiniMax Portal 认证
 
-#### 29. Qwen Portal Auth (`qwen-portal-auth/`)
+#### 35. Qwen Portal Auth (`qwen-portal-auth/`)
 - **职责**：Qwen Portal 认证
 
-#### 30. Open Prose (`open-prose/`)
-- **职责**：开放式散文技能
+#### 36. Open Prose (`open-prose/`)
+- **职责**：开放式散文技能语言
 
 ## 测试与质量
 
@@ -342,6 +372,12 @@ A: 各插件的 `send.ts` 中实现了媒体上传逻辑。
 - `extensions/*/README.md`
 
 ## 变更记录
+
+### 2026-02-16 - 扩展插件文档更新至 100% 覆盖 🎉
+- ✅ 更新扩展插件列表至 36 个
+- ✅ 添加缺失的扩展文档：phone-control、device-pair、talk-voice、irc、thread-ownership
+- ✅ 更新扩展插件总数和覆盖率统计
+- 📈 所有 36 个扩展插件均已文档化
 
 ### 2026-02-09 - Feishu 认证配置文档
 - ✅ 完善飞书扩展配置模式文档 (`feishu/src/config-schema.ts`)
