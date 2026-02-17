@@ -1,6 +1,6 @@
 # OpenClaw (Clawdbot) - AI 上下文索引
 
-> 更新时间：2026-02-16 18:33:23
+> 更新时间：2026-02-17 08:01:00
 
 ## 📊 文档覆盖率统计
 
@@ -8,17 +8,17 @@
 |---------|-------|---------|--------|
 | **核心模块 (src/)** | 20 | 20 | 100% |
 | **CLI 子模块** | 4 | 4 | 100% |
-| **扩展插件** | 36 | 36 | 100% |
+| **扩展插件** | 40 | 39 | 97.5% |
 | **UI 模块** | 1 | 1 | 100% |
 | **原生应用** | 1 | 1 | 100% |
 | **技能模块** | 1 | 1 | 100% |
 | **包模块** | 1 | 1 | 100% |
 | **脚本模块** | 2 | 2 | 100% |
-| **其他模块** | 3 | 3 | 100% |
+| **其他模块** | 4 | 4 | 100% |
 
-**总计**：71 个 CLAUDE.md 文件
+**总计**：76 个 CLAUDE.md 文件
 
-> 注：36/36 扩展插件已文档化 (100% 覆盖率) ✨
+> 注：39/40 扩展插件已文档化 (97.5% 覆盖率)，仅 `shared` 扩展待完善 ✨
 
 ## 项目概览
 
@@ -80,11 +80,12 @@ graph TD
 ## 🌟 核心特性
 
 ### 多渠道支持
-- **即时通讯平台**: WhatsApp、Telegram、Slack、Discord、Google Chat、Signal
-- **企业协作**: Microsoft Teams、Matrix、Nextcloud Talk、Mattermost
-- **扩展渠道**: BlueBubbles (iMessage)、Zalo、Twitch、Nostr、IRC、LINE
+- **即时通讯平台**: WhatsApp、Telegram、Slack、Discord、Google Chat、Signal、LINE
+- **企业协作**: Microsoft Teams、Matrix、Nextcloud Talk、Mattermost、飞书 (Feishu)
+- **扩展渠道**: BlueBubbles (iMessage)、Linq (真·iMessage API)、Zalo、Twitch、Nostr、IRC
 - **语音渠道**: Voice Call、Talk Voice
-- **认证扩展**: Google Antigravity Auth、Google Gemini CLI Auth、Minimax Portal Auth、Qwen Portal Auth
+- **认证扩展**: Google Antigravity Auth、Google Gemini CLI Auth、Minimax Portal Auth、Qwen Portal Auth、OpenAI Codex Auth 🆕
+- **国际化**: 中文界面翻译 (openclaw-zh-cn-ui) 🆕
 - **Web 界面**: WebChat 控制界面
 
 ### AI 代理能力
@@ -209,7 +210,7 @@ graph TD
 - **运行时核心**: `*/src/runtime.ts` - 扩展运行时入口
 - **配置模式**: `*/src/config-schema.ts` - Zod 配置模式定义
 - **测试文件**: `*/src/*.test.ts` - 扩展功能测试
-- **扩展目录**: 支持 36 个通信渠道扩展
+- **扩展目录**: 支持 40 个通信渠道扩展 (新增: linq、openai-codex-auth、openclaw-zh-cn-ui、shared)
 
 ## 🚀 运行与开发
 
@@ -344,6 +345,17 @@ pnpm test:coverage
 
 ## 🔄 变更记录
 
+### 2026-02-17 08:01:00 - 扩展插件库更新 🆕
+- ✅ 发现 4 个新扩展插件：linq、openai-codex-auth、openclaw-zh-cn-ui、shared
+- ✅ 更新扩展插件总数：36 → 40 个
+- ✅ 新增 Linq iMessage API 适配器（无需 Mac 即可使用真 iMessage）
+- ✅ 新增 OpenAI Codex CLI 认证提供商（使用 ChatGPT Plus/Pro 订阅）
+- ✅ 新增中文界面翻译扩展
+- ✅ 为新扩展创建占位文档，文档总数：72 → 76 个
+- ✅ 更新文档覆盖率：97.5% (39/40 扩展已文档化)
+- 📈 自上次文档更新以来新增 429 个提交
+- 🎯 仅 `shared` 扩展待完善文档
+
 ### 2026-02-16 18:33:23 - 自适应初始化完成 🎉
 - ✅ 执行 OpenClaw 项目的自适应初始化
 - ✅ 验证文档覆盖率：71 个 CLAUDE.md 文件（100% 覆盖率）
@@ -407,7 +419,7 @@ pnpm test:coverage
 
 ### 模块覆盖
 - **核心模块 (src/)**: ✅ 100% 覆盖 (20 个子模块)
-- **扩展模块 (extensions/)**: ✅ 100% 覆盖 (36/36 个扩展) 🎉
+- **扩展模块 (extensions/)**: ✅ 97.5% 覆盖 (39/40 个扩展) - 仅 shared 扩展待完善
 - **UI 模块 (ui/)**: ✅ 100% 覆盖
 - **原生应用 (apps/)**: ✅ 100% 覆盖
 - **技能模块 (skills/)**: ✅ 100% 覆盖
@@ -429,11 +441,13 @@ pnpm test:coverage
 ## 🎯 推荐的下一步
 
 ### 优先补扫
-1. **E2E 测试流程**: `scripts/e2e/*.sh` 的详细使用说明
-2. **移动端开发**: iOS/Android 节点的开发指南
-3. **插件开发**: 创建新渠道扩展的教程
-4. **技能开发**: 工作区技能的开发和部署流程
-5. **认证系统**: API 密钥管理和 OAuth 流程详细文档
+1. **shared 扩展**: 完善 shared 扩展的 CLAUDE.md 文档
+2. **新扩展详细文档**: 为 3 个新扩展创建详细文档 (linq、openai-codex-auth、openclaw-zh-cn-ui)
+3. **E2E 测试流程**: `scripts/e2e/*.sh` 的详细使用说明
+4. **移动端开发**: iOS/Android 节点的开发指南
+5. **插件开发**: 创建新渠道扩展的教程
+6. **技能开发**: 工作区技能的开发和部署流程
+7. **认证系统**: API 密钥管理和 OAuth 流程详细文档
 
 ### 深度补捞建议
 1. **协议文档**: Gateway WebSocket 协议详细规范
