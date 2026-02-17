@@ -2087,7 +2087,6 @@ public struct CronJob: Codable, Sendable {
     public let name: String
     public let description: String?
     public let enabled: Bool
-    public let notify: Bool?
     public let deleteafterrun: Bool?
     public let createdatms: Int
     public let updatedatms: Int
@@ -2095,7 +2094,7 @@ public struct CronJob: Codable, Sendable {
     public let sessiontarget: AnyCodable
     public let wakemode: AnyCodable
     public let payload: AnyCodable
-    public let delivery: [String: AnyCodable]?
+    public let delivery: AnyCodable?
     public let state: [String: AnyCodable]
 
     public init(
@@ -2104,7 +2103,6 @@ public struct CronJob: Codable, Sendable {
         name: String,
         description: String?,
         enabled: Bool,
-        notify: Bool?,
         deleteafterrun: Bool?,
         createdatms: Int,
         updatedatms: Int,
@@ -2112,7 +2110,7 @@ public struct CronJob: Codable, Sendable {
         sessiontarget: AnyCodable,
         wakemode: AnyCodable,
         payload: AnyCodable,
-        delivery: [String: AnyCodable]?,
+        delivery: AnyCodable?,
         state: [String: AnyCodable]
     ) {
         self.id = id
@@ -2120,7 +2118,6 @@ public struct CronJob: Codable, Sendable {
         self.name = name
         self.description = description
         self.enabled = enabled
-        self.notify = notify
         self.deleteafterrun = deleteafterrun
         self.createdatms = createdatms
         self.updatedatms = updatedatms
@@ -2137,7 +2134,6 @@ public struct CronJob: Codable, Sendable {
         case name
         case description
         case enabled
-        case notify
         case deleteafterrun = "deleteAfterRun"
         case createdatms = "createdAtMs"
         case updatedatms = "updatedAtMs"
@@ -2171,32 +2167,29 @@ public struct CronAddParams: Codable, Sendable {
     public let agentid: AnyCodable?
     public let description: String?
     public let enabled: Bool?
-    public let notify: Bool?
     public let deleteafterrun: Bool?
     public let schedule: AnyCodable
     public let sessiontarget: AnyCodable
     public let wakemode: AnyCodable
     public let payload: AnyCodable
-    public let delivery: [String: AnyCodable]?
+    public let delivery: AnyCodable?
 
     public init(
         name: String,
         agentid: AnyCodable?,
         description: String?,
         enabled: Bool?,
-        notify: Bool?,
         deleteafterrun: Bool?,
         schedule: AnyCodable,
         sessiontarget: AnyCodable,
         wakemode: AnyCodable,
         payload: AnyCodable,
-        delivery: [String: AnyCodable]?
+        delivery: AnyCodable?
     ) {
         self.name = name
         self.agentid = agentid
         self.description = description
         self.enabled = enabled
-        self.notify = notify
         self.deleteafterrun = deleteafterrun
         self.schedule = schedule
         self.sessiontarget = sessiontarget
@@ -2209,7 +2202,6 @@ public struct CronAddParams: Codable, Sendable {
         case agentid = "agentId"
         case description
         case enabled
-        case notify
         case deleteafterrun = "deleteAfterRun"
         case schedule
         case sessiontarget = "sessionTarget"
@@ -2762,6 +2754,144 @@ public struct ChatEvent: Codable, Sendable {
         case errormessage = "errorMessage"
         case usage
         case stopreason = "stopReason"
+    }
+}
+
+public struct MeshPlanParams: Codable, Sendable {
+    public let goal: String
+    public let steps: [[String: AnyCodable]]?
+
+    public init(
+        goal: String,
+        steps: [[String: AnyCodable]]?
+    ) {
+        self.goal = goal
+        self.steps = steps
+    }
+    private enum CodingKeys: String, CodingKey {
+        case goal
+        case steps
+    }
+}
+
+public struct MeshPlanAutoParams: Codable, Sendable {
+    public let goal: String
+    public let maxsteps: Int?
+    public let agentid: String?
+    public let sessionkey: String?
+    public let thinking: String?
+    public let timeoutms: Int?
+    public let lane: String?
+
+    public init(
+        goal: String,
+        maxsteps: Int?,
+        agentid: String?,
+        sessionkey: String?,
+        thinking: String?,
+        timeoutms: Int?,
+        lane: String?
+    ) {
+        self.goal = goal
+        self.maxsteps = maxsteps
+        self.agentid = agentid
+        self.sessionkey = sessionkey
+        self.thinking = thinking
+        self.timeoutms = timeoutms
+        self.lane = lane
+    }
+    private enum CodingKeys: String, CodingKey {
+        case goal
+        case maxsteps = "maxSteps"
+        case agentid = "agentId"
+        case sessionkey = "sessionKey"
+        case thinking
+        case timeoutms = "timeoutMs"
+        case lane
+    }
+}
+
+public struct MeshWorkflowPlan: Codable, Sendable {
+    public let planid: String
+    public let goal: String
+    public let createdat: Int
+    public let steps: [[String: AnyCodable]]
+
+    public init(
+        planid: String,
+        goal: String,
+        createdat: Int,
+        steps: [[String: AnyCodable]]
+    ) {
+        self.planid = planid
+        self.goal = goal
+        self.createdat = createdat
+        self.steps = steps
+    }
+    private enum CodingKeys: String, CodingKey {
+        case planid = "planId"
+        case goal
+        case createdat = "createdAt"
+        case steps
+    }
+}
+
+public struct MeshRunParams: Codable, Sendable {
+    public let plan: MeshWorkflowPlan
+    public let continueonerror: Bool?
+    public let maxparallel: Int?
+    public let defaultsteptimeoutms: Int?
+    public let lane: String?
+
+    public init(
+        plan: MeshWorkflowPlan,
+        continueonerror: Bool?,
+        maxparallel: Int?,
+        defaultsteptimeoutms: Int?,
+        lane: String?
+    ) {
+        self.plan = plan
+        self.continueonerror = continueonerror
+        self.maxparallel = maxparallel
+        self.defaultsteptimeoutms = defaultsteptimeoutms
+        self.lane = lane
+    }
+    private enum CodingKeys: String, CodingKey {
+        case plan
+        case continueonerror = "continueOnError"
+        case maxparallel = "maxParallel"
+        case defaultsteptimeoutms = "defaultStepTimeoutMs"
+        case lane
+    }
+}
+
+public struct MeshStatusParams: Codable, Sendable {
+    public let runid: String
+
+    public init(
+        runid: String
+    ) {
+        self.runid = runid
+    }
+    private enum CodingKeys: String, CodingKey {
+        case runid = "runId"
+    }
+}
+
+public struct MeshRetryParams: Codable, Sendable {
+    public let runid: String
+    public let stepids: [String]?
+
+    public init(
+        runid: String,
+        stepids: [String]?
+    ) {
+        self.runid = runid
+        self.stepids = stepids
+    }
+    private enum CodingKeys: String, CodingKey {
+        case runid = "runId"
+        case stepids = "stepIds"
     }
 }
 
