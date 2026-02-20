@@ -1,0 +1,240 @@
+---
+summary: "Nodes CLI 子命令实现 - 节点管理、配对、相机、屏幕、Canvas 操作"
+read_when:
+  - 理解 Nodes 命令行接口实现
+  - 调试节点管理功能
+  - 添加新的节点子命令
+title: "Nodes CLI 子模块"
+---
+
+# Nodes CLI 子模块
+
+> 更新时间：2026-02-20
+
+本模块实现 `openclaw nodes` 命令的所有子命令，用于管理 OpenClaw 移动节点（iOS/Android）。
+
+## 模块概览
+
+```
+src/cli/nodes-cli/
+├── a2ui-jsonl.ts          # A2UI JSONL 格式化
+├── cli-utils.ts           # CLI 工具函数
+├── format.ts              # 格式化工具
+├── pairing-render.ts      # 配对请求渲染
+├── register.ts            # 命令注册（主入口）
+├── register.camera.ts     # 相机命令
+├── register.canvas.ts     # Canvas 命令
+├── register.invoke.ts     # 节点调用（run）
+├── register.location.ts   # 位置命令
+├── register.notify.ts     # 通知命令
+├── register.pairing.ts    # 配对命令
+├── register.push.ts       # 推送命令
+├── register.screen.ts     # 屏幕命令
+├── register.status.ts     # 状态命令
+├── rpc.ts                 # RPC 通信
+├── types.ts               # 类型定义
+```
+
+## 核心功能
+
+### 1. 命令注册 (`register.ts`)
+
+**导出**: `registerNodesCli(program: Command)`
+
+注册所有 Nodes 子命令：
+- `nodes status` - 节点状态
+- `nodes list` - 列出节点
+- `nodes pairing` - 配对管理
+- `nodes run` - 在节点上执行命令
+- `nodes camera` - 相机操作
+- `nodes canvas` - Canvas 操作
+- `nodes screen` - 屏幕截图
+- `nodes location` - 位置查询
+- `nodes notify` - 发送通知
+- `nodes push` - 推送配置
+
+### 2. 节点调用 (`register.invoke.ts`)
+
+**导出**: `registerNodesInvokeCommands(nodes: Command)`
+
+**nodes run** - 在节点上执行命令
+
+**选项**:
+| 选项 | 类型 | 说明 |
+|------|------|------|
+| `--node` | string | 节点 ID/名称/IP |
+| `--cwd` | string | 工作目录 |
+| `--env` | string[] | 环境变量 |
+| `--command-timeout` | string | 命令超时 |
+| `--invoke-timeout` | string | 调用超时 |
+| `--security` | string | 安全级别（deny/allowlist/full） |
+| `--ask` | string | 询问模式（off/on-miss/always） |
+| `--agent` | string | Agent 配置 |
+| `--raw` | string | 原始输出 |
+
+**执行流程**:
+1. 解析执行默认值（全局/Agent 配置）
+2. 解析节点平台（iOS/Android）
+3. 构建节点 Shell 命令
+4. 通过网关 RPC 调用
+5. 处理超时和审批
+
+```typescript
+// 示例：在节点上运行命令
+openclaw nodes run --node my-node --security full -- ls -la
+```
+
+### 3. 相机操作 (`register.camera.ts`)
+
+**导出**: `registerNodesCameraCommands(nodes: Command)`
+
+**子命令**:
+- `nodes camera list` - 列出可用相机
+- `nodes camera snap` - 拍照
+- `nodes camera clip` - 录制视频
+
+**选项**:
+| 选项 | 类型 | 说明 |
+|------|------|------|
+| `--facing` | string | 前置/后置（front/back） |
+| `--output` | string | 输出文件路径 |
+| `--duration` | string | 录制时长 |
+
+**输出格式**:
+- `snap`: Base64 或文件路径
+- `clip`: URL 或文件路径
+
+```typescript
+// 示例：使用后置相机拍照
+openclaw nodes camera snap --node my-node --facing back --output photo.jpg
+```
+
+### 4. Canvas 操作 (`register.canvas.ts`)
+
+**导出**: `registerNodesCanvasCommands(nodes: Command)`
+
+**子命令**:
+- `nodes canvas list` - 列出 Canvas
+- `nodes canvas show` - 显示 Canvas
+- `nodes canvas hide` - 隐藏 Canvas
+- `nodes canvas snapshot` - 截图
+- `nodes canvas invoke` - 调用 Canvas 方法
+
+### 5. 配对管理 (`register.pairing.ts`)
+
+**导出**: `registerNodesPairingCommands(nodes: Command)`
+
+**子命令**:
+- `nodes pairing list` - 列出配对请求
+- `nodes pairing approve` - 批准配对
+- `nodes pairing deny` - 拒绝配对
+
+**配对流程**:
+1. 节点发起配对请求
+2. 显示请求列表
+3. 用户批准/拒绝
+4. 建立信任关系
+
+```typescript
+// 配对渲染
+function renderPendingPairingRequestsTable(
+  requests: PendingPairingRequest[],
+  rich: boolean
+): string
+```
+
+### 6. 状态查询 (`register.status.ts`)
+
+**导出**: `registerNodesStatusCommands(nodes: Command)`
+
+**显示信息**:
+- 节点 ID 和名称
+- 平台和版本
+- 连接状态
+- 配对状态
+- 权限（相机、位置、通知等）
+- 上次活动时间
+
+### 7. RPC 通信 (`rpc.ts`)
+
+**导出**:
+- `callGatewayCli(method, opts, params)` - 调用网关 RPC
+- `buildNodeInvokeParams(...)` - 构建调用参数
+- `resolveNodeId(opts, idOrName)` - 解析节点 ID
+- `nodesCallOpts(command)` - 通用选项
+
+**RPC 方法**:
+```typescript
+async function callGatewayCli<T = unknown>(
+  method: string,
+  opts: NodesRpcOpts,
+  params: Record<string, unknown>
+): Promise<T>
+```
+
+### 8. 格式化工具 (`format.ts`)
+
+**导出**:
+- `parseNodeList(raw)` - 解析节点列表
+- `parsePairingList(raw)` - 解析配对列表
+- `formatPermissions(perms)` - 格式化权限
+- `formatNodePlatform(platform)` - 格式化平台
+
+### 9. CLI 工具 (`cli-utils.ts`)
+
+**导出**:
+- `getNodesTheme()` - 获取主题
+- `runNodesCommand(label, action)` - 运行命令
+- `renderNodesError(err)` - 渲染错误
+
+## 类型定义
+
+```typescript
+// types.ts
+export type NodesRpcOpts = {
+  host?: string;
+  port?: number;
+  token?: string;
+  password?: string;
+  json?: boolean;
+};
+
+export type CameraFacing = "front" | "back";
+
+export type NodePlatform = "ios" | "android" | "darwin" | "linux" | "win32";
+```
+
+## 相关文档
+
+- [节点主机](../../node-host/CLAUDE.md)
+- [配对系统](../../pairing/CLAUDE.md)
+- [相机模块](../nodes-camera.ts)
+- [执行审批](../../infra/exec-approvals.ts)
+
+## 导出索引
+
+```typescript
+// 主要导出
+export { registerNodesCli } from "./register.js";
+export { callGatewayCli, nodesCallOpts } from "./rpc.js";
+
+// 工具函数
+export {
+  parseNodeList,
+  parsePairingList,
+  formatPermissions,
+  formatNodePlatform,
+} from "./format.js";
+
+export { getNodesTheme, runNodesCommand } from "./cli-utils.js";
+export { renderPendingPairingRequestsTable } from "./pairing-render.js";
+```
+
+
+<claude-mem-context>
+# Recent Activity
+
+<!-- This section is auto-generated by claude-mem. Edit content outside the tags. -->
+
+*No recent activity*
+</claude-mem-context>

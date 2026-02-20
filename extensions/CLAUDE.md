@@ -43,9 +43,13 @@ extensions/
 ├── google-gemini-cli-auth/      # Google Gemini CLI 认证
 ├── minimax-portal-auth/         # MiniMax Portal 认证
 ├── qwen-portal-auth/            # Qwen Portal 认证
+├── openai-codex-auth/ # OpenAI Codex CLI 认证 🆕
 ├── open-prose/        # Open Prose 扩展
 ├── irc/               # IRC 适配器
-└── thread-ownership/  # 线程所有权扩展
+├── thread-ownership/  # 线程所有权扩展
+├── linq/              # Linq iMessage API 适配器 🆕
+├── openclaw-zh-cn-ui/ # 中文界面翻译 🆕
+└── shared/            # 共享测试工具 🆕
 ```
 
 ## 入口与启动
@@ -248,7 +252,13 @@ interface OutboundTarget {
 - **能力**：消息发送、媒体、反应、群组
 - **测试覆盖率**：85%
 
-#### 17. Tlon/Urbit (`tlon/`)
+#### 17. Linq (`linq/`) 🆕
+- **特点**：真·iMessage API，无需 Mac 即可使用
+- **能力**：通过 Linq Blue V3 API 发送 iMessage，支持直接消息和群组，支持反应和媒体
+- **优势**：替代需要 Mac Mini + 专用 Apple ID + SSH + Full Disk Access 的复杂配置
+- **测试覆盖率**：N/A
+
+#### 18. Tlon/Urbit (`tlon/`)
 - **特点**：去中心化计算平台
 - **能力**：消息发送
 - **测试覆盖率**：N/A
@@ -332,6 +342,33 @@ interface OutboundTarget {
 #### 36. Open Prose (`open-prose/`)
 - **职责**：开放式散文技能语言
 
+#### 37. OpenAI Codex Auth (`openai-codex-auth/`) 🆕
+- **职责**：OpenAI Codex CLI 认证提供商
+- **特点**：使用 ChatGPT Plus/Pro 订阅，无需单独 API 密钥
+- **支持模型**：gpt-4.1、gpt-4o、o1、o3 等最新模型
+- **认证来源**：读取 `~/.codex/auth.json` 的 OAuth 令牌
+
+#### 38. OpenClaw 中文界面 (`openclaw-zh-cn-ui/`) 🆕
+- **职责**：中文界面翻译扩展
+- **功能**：提供 OpenClaw 界面的中文化翻译
+- **状态**：开发中，待集成到前端
+
+#### 39. Shared (`shared/`) 🆕
+- **职责**：共享测试工具
+- **功能**：提供扩展测试辅助工具
+
+## 扩展统计
+
+**总计扩展数**：40 个
+- **已文档化**：39 个 (97.5%)
+- **待完善**：1 个 (shared)
+
+**新增扩展 (2026-02-17)**：
+- `linq` - Linq iMessage API 适配器
+- `openai-codex-auth` - OpenAI Codex CLI 认证
+- `openclaw-zh-cn-ui` - 中文界面翻译
+- `shared` - 共享测试工具
+
 ## 测试与质量
 
 ### 测试文件
@@ -373,6 +410,16 @@ A: 各插件的 `send.ts` 中实现了媒体上传逻辑。
 
 ## 变更记录
 
+### 2026-02-17 - 扩展插件库更新 🆕
+- ✅ 发现并记录 4 个新扩展：linq、openai-codex-auth、openclaw-zh-cn-ui、shared
+- ✅ 更新扩展插件总数：36 → 40 个
+- ✅ 为新扩展创建占位文档
+- ✅ 添加 Linq iMessage API 适配器详细说明
+- ✅ 添加 OpenAI Codex CLI 认证提供商文档
+- ✅ 添加中文界面翻译扩展说明
+- ✅ 更新文档覆盖率：97.5% (39/40 扩展已文档化)
+- 📝 待完成：为 shared 扩展创建完整 CLAUDE.md 文档
+
 ### 2026-02-16 - 扩展插件文档更新至 100% 覆盖 🎉
 - ✅ 更新扩展插件列表至 36 个
 - ✅ 添加缺失的扩展文档：phone-control、device-pair、talk-voice、irc、thread-ownership
@@ -412,4 +459,14 @@ A: 各插件的 `send.ts` 中实现了媒体上传逻辑。
 | #2217 | 10:33 AM | 🟣 | Documentation campaign completed with 27 CLAUDE.md changes | ~484 |
 | #2212 | 10:30 AM | 🟣 | Documentation coverage campaign achieved 100% core module coverage | ~546 |
 | #2169 | 10:18 AM | 🔵 | Extensions module already has comprehensive documentation | ~273 |
+
+### Feb 17, 2026
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #4309 | 8:05 AM | 🔵 | Documentation update summary shows 86 insertions and 18 deletions across 2 files | ~235 |
+| #4308 | " | ✅ | Extensions changelog updated with accurate coverage statistics | ~234 |
+| #4307 | " | ✅ | Extensions documentation statistics corrected to 97.5% coverage | ~203 |
+| #4296 | 8:04 AM | ✅ | Extensions CLAUDE.md updated with 4 new extensions and changelog | ~380 |
+| #4287 | 8:03 AM | 🔵 | Extensions CLAUDE.md lists 32 plugins, missing 8 newer extensions | ~312 |
 </claude-mem-context>
