@@ -5,11 +5,10 @@
 
 ### Feb 11, 2026
 
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #2637 | 12:23 AM | ✅ | Committed comprehensive Chinese documentation for 6 OpenClaw modules to git | ~493 |
-| #2590 | 12:08 AM | ✅ | Created comprehensive Chinese documentation for 6 OpenClaw modules | ~652 |
-| #2587 | 12:07 AM | ✅ | Created comprehensive Chinese documentation for 6 OpenClaw modules | ~576 |
+| ID    | Time     | T   | Title                                                                       | Read |
+| ----- | -------- | --- | --------------------------------------------------------------------------- | ---- |
+| #2637 | 12:23 AM | ✅  | Committed comprehensive Chinese documentation for 6 OpenClaw modules to git | ~493 |
+
 </claude-mem-context>
 
 # AI 代理运行时模块 (agents/)
@@ -35,6 +34,7 @@ agents/
 ## 关键文件
 
 ### pi-embedded.ts
+
 - **职责**: Pi Agent 集成和 RPC 通信
 - **关键函数**:
   - `createPiAgent()` - 创建 Pi 代理实例
@@ -42,18 +42,21 @@ agents/
   - `streamPiAgent()` - 流式输出支持
 
 ### pi-tools.ts
+
 - **职责**: 工具注册、工具策略定义
 - **关键函数**:
   - `registerTool()` - 注册新工具
   - `createToolPolicy()` - 创建工具使用策略
 
 ### sandbox.ts
+
 - **职责**: Docker 沙箱隔离执行
 - **关键类**:
   - `SandboxContext` - 沙箱上下文
   - `SandboxRunner` - 沙箱运行器
 
 ### auth-profiles/ 🔑
+
 - **职责**: API 密钥和认证凭据管理
 - **关键文件**:
   - `auth-profiles.ts` - 认证配置 CRUD
@@ -64,6 +67,7 @@ agents/
 ## 关键类型
 
 ### AgentRunner
+
 ```typescript
 interface AgentRunner {
   start(): Promise<void>;
@@ -74,6 +78,7 @@ interface AgentRunner {
 ```
 
 ### ToolRegistry
+
 ```typescript
 interface ToolRegistry {
   register(tool: Tool): void;
@@ -84,6 +89,7 @@ interface ToolRegistry {
 ```
 
 ### AuthProfileStore
+
 ```typescript
 interface AuthProfileStore {
   version: 1;
@@ -95,11 +101,13 @@ interface AuthProfileStore {
 ## 认证配置
 
 ### 配置文件位置
+
 1. `${PROJECT_ROOT}/auth-profiles.json`
 2. `~/.openclaw/agents/main/agent/auth-profiles.json`
 3. `*_API_KEY` 环境变量（后备）
 
 ### 支持的提供商
+
 - **Z.AI (BigModel)**: `zai:default`
 - **Anthropic Claude**: `anthropic:default`
 - **OpenAI**: `openai:default`
@@ -108,12 +116,14 @@ interface AuthProfileStore {
 ## 测试
 
 ### 单元测试
+
 ```bash
 pnpm test src/agents/*.test.ts
 pnpm test src/agents/auth-profiles/*.test.ts
 ```
 
 ### Live 测试
+
 ```bash
 pnpm test:live src/agents/**/*.live.test.ts
 ```
@@ -121,12 +131,15 @@ pnpm test:live src/agents/**/*.live.test.ts
 ## 常见问题 (FAQ)
 
 ### Q: 如何添加新的 AI 工具？
+
 A: 在 `pi-tools.ts` 中使用 `registerTool()` 注册，或创建独立的工具扩展。
 
 ### Q: 如何配置认证？
+
 A: 编辑 `auth-profiles.json` 文件，添加提供商配置。
 
 ### Q: 沙箱如何隔离执行？
+
 A: 使用 Docker 容器运行代码，提供文件系统和网络隔离。
 
 ## 相关模块
@@ -138,11 +151,13 @@ A: 使用 Docker 容器运行代码，提供文件系统和网络隔离。
 ## 变更记录
 
 ### 2026-02-09 - 认证系统集成
+
 - ✅ 集成 `auth-profiles/` 认证配置模块
 - ✅ 文档化认证配置优先级和结构
 - 🔍 诊断 Z.AI 提供商 401 认证错误
 
 ### 2026-02-08 - 初始化代理模块文档
+
 - ✅ 创建 `src/agents/CLAUDE.md` 文档
 - 📋 记录核心接口和关键文件
 - 🔗 建立子模块导航
