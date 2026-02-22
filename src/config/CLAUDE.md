@@ -101,10 +101,12 @@ src/config/
 ## 入口与启动
 
 ### 主入口
+
 - **`src/config/config.ts`** - 配置加载主入口
 - **`src/config/io.ts`** - 配置读写操作
 
 ### 加载流程
+
 ```typescript
 import { loadConfig } from "./config/config.ts";
 
@@ -118,6 +120,7 @@ const config = await loadConfig({
 ## 对外接口
 
 ### ConfigLoader 接口
+
 ```typescript
 interface ConfigLoader {
   load(): Promise<OpenClawConfig>;
@@ -128,6 +131,7 @@ interface ConfigLoader {
 ```
 
 ### OpenClawConfig 接口
+
 ```typescript
 interface OpenClawConfig {
   version: string;
@@ -144,6 +148,7 @@ interface OpenClawConfig {
 ```
 
 ### ValidationResult 接口
+
 ```typescript
 interface ValidationResult {
   valid: boolean;
@@ -159,11 +164,13 @@ interface ValidationResult {
 **职责**：配置文件的读取、解析和缓存
 
 **关键文件**：
+
 - `config.ts` - 配置加载主逻辑
 - `io.ts` - 文件 I/O 操作
 - `paths.ts` - 配置文件路径解析
 
 **功能**：
+
 - 多格式支持（JSON、YAML）
 - 配置目录扫描
 - 配置文件合并
@@ -174,12 +181,14 @@ interface ValidationResult {
 **职责**：使用 Zod 定义和验证配置
 
 **关键文件**：
+
 - `schema.ts` - 主配置 Schema
 - `zod-schema.core.ts` - 核心配置 Schema
 - `zod-schema.providers-core.ts` - 提供商 Schema
 - `zod-schema.session.ts` - 会话 Schema
 
 **功能**：
+
 - 类型安全的配置验证
 - 自定义验证规则
 - 错误消息本地化
@@ -189,10 +198,12 @@ interface ValidationResult {
 **职责**：处理配置包含和多配置文件合并
 
 **关键文件**：
+
 - `includes.ts` - `@include` 指令处理
 - `merge-config.ts` - 配置合并逻辑
 
 **合并策略**：
+
 1. 默认配置
 2. 用户配置
 3. 环境变量覆盖
@@ -203,6 +214,7 @@ interface ValidationResult {
 **职责**：将环境变量替换到配置中
 
 **语法**：
+
 ```json
 {
   "apiKey": "${OPENCLAW_API_KEY}",
@@ -215,10 +227,12 @@ interface ValidationResult {
 **职责**：将旧版配置迁移到新版格式
 
 **关键文件**：
+
 - `legacy-migrate.ts` - 迁移入口
 - `legacy.migrations.part-*.ts` - 各版本迁移逻辑
 
 **迁移版本**：
+
 - v1.x → v2.x
 - v2.x → v3.x
 - v3.x → 当前版本
@@ -228,6 +242,7 @@ interface ValidationResult {
 **职责**：会话相关的配置
 
 **关键文件**：
+
 - `sessions/sessions.ts` - 会话配置
 - `sessions/cache.ts` - 会话缓存配置
 - `sessions/test.ts` - 测试配置
@@ -237,6 +252,7 @@ interface ValidationResult {
 **职责**：配置的类型 TypeScript 定义
 
 **主要类型**：
+
 - `types.base.ts` - 基础类型
 - `types.agents.ts` - 代理类型
 - `types.providers.ts` - 提供商类型
@@ -245,6 +261,7 @@ interface ValidationResult {
 ## 关键依赖与配置
 
 ### 核心依赖
+
 ```json
 {
   "zod": "^3.22.0",
@@ -253,6 +270,7 @@ interface ValidationResult {
 ```
 
 ### 配置文件位置
+
 ```
 ~/.config/openclaw/openclaw.json     # 主配置
 ~/.config/openclaw/openclaw.local.json  # 本地覆盖
@@ -260,6 +278,7 @@ interface ValidationResult {
 ```
 
 ### 环境变量
+
 ```bash
 OPENCLAW_CONFIG_DIR      # 配置目录
 OPENCLAW_CONFIG_FILE     # 配置文件名
@@ -269,10 +288,12 @@ OPENCLAW_PROFILE         # 配置 profile
 ## 测试与质量
 
 ### 测试文件
+
 - `src/config/**/*.test.ts` - 单元测试
 - `src/config/**/*.migrations.test.ts` - 迁移测试
 
 ### 测试命令
+
 ```bash
 pnpm test src/config
 pnpm test src/config --migrations
@@ -281,36 +302,42 @@ pnpm test src/config --migrations
 ## 常见问题 (FAQ)
 
 ### Q: 如何创建新配置？
+
 A: 使用 `openclaw config init` 命令或复制示例配置文件。
 
 ### Q: 配置不生效怎么办？
+
 A: 检查配置文件位置、格式是否正确，使用 `openclaw config validate` 验证。
 
 ### Q: 如何在不同环境使用不同配置？
+
 A: 使用配置文件和 `OPENCLAW_PROFILE` 环境变量切换。
 
 ## 相关文件清单
 
 ### 核心文件
+
 - `src/config/config.ts` - 配置加载器
 - `src/config/schema.ts` - Schema 定义
 - `src/config/io.ts` - I/O 操作
 
 ### 迁移文件
+
 - `src/config/legacy-migrate.ts` - 迁移入口
 - `src/config/legacy.migrations.part-*.ts` - 各版本迁移
 
 ### 测试文件
+
 - `src/config/**/*.test.ts` - 配置测试
 - `src/config/**/*.migrations.test.ts` - 迁移测试
 
 ## 变更记录
 
 ### 2026-02-10 - 创建配置模块文档
+
 - ✅ 创建 `src/config/CLAUDE.md` 文档
 - 📋 记录 Schema 和迁移系统
 - 🔗 建立配置类型导航
-
 
 <claude-mem-context>
 # Recent Activity
@@ -319,9 +346,22 @@ A: 使用配置文件和 `OPENCLAW_PROFILE` 环境变量切换。
 
 ### Feb 10, 2026
 
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #2212 | 10:30 AM | 🟣 | Documentation coverage campaign achieved 100% core module coverage | ~546 |
-| #2207 | 10:25 AM | 🟣 | Documentation coverage significantly improved - 10 new CLAUDE.md files created | ~538 |
-| #2189 | 10:21 AM | 🟣 | Created three CLAUDE.md files for channels, config, and sessions modules | ~367 |
+| ID    | Time     | T   | Title                                                                          | Read |
+| ----- | -------- | --- | ------------------------------------------------------------------------------ | ---- |
+| #2212 | 10:30 AM | 🟣  | Documentation coverage campaign achieved 100% core module coverage             | ~546 |
+| #2207 | 10:25 AM | 🟣  | Documentation coverage significantly improved - 10 new CLAUDE.md files created | ~538 |
+| #2189 | 10:21 AM | 🟣  | Created three CLAUDE.md files for channels, config, and sessions modules       | ~367 |
+
+### Feb 21, 2026
+
+| ID    | Time     | T   | Title                                    | Read |
+| ----- | -------- | --- | ---------------------------------------- | ---- |
+| #5608 | 11:55 PM | 🔵  | Exploring OpenClaw Configuration Options | ~195 |
+
+### Feb 22, 2026
+
+| ID    | Time     | T   | Title                                 | Read |
+| ----- | -------- | --- | ------------------------------------- | ---- |
+| #5612 | 12:00 AM | 🔵  | Heartbeat Configuration Options Found | ~274 |
+
 </claude-mem-context>
