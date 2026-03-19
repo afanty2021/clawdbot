@@ -18,6 +18,8 @@ const LEGACY_PROVIDER_MAP = {
   grok: "xai",
   kimi: "moonshot",
   perplexity: "perplexity",
+  serper: "serper",
+  tavily: "tavily",
 } as const;
 
 type LegacyProviderId = keyof typeof LEGACY_PROVIDER_MAP;
@@ -213,7 +215,15 @@ function normalizeLegacyWebSearchConfigRecord<T extends JsonRecord>(
     });
   }
 
-  for (const providerId of ["firecrawl", "gemini", "grok", "kimi", "perplexity"] as const) {
+  for (const providerId of [
+    "firecrawl",
+    "gemini",
+    "grok",
+    "kimi",
+    "perplexity",
+    "serper",
+    "tavily",
+  ] as const) {
     const scoped = copyLegacyProviderConfig(search, providerId);
     if (!scoped || Object.keys(scoped).length === 0) {
       continue;

@@ -35,6 +35,16 @@ const PROVIDER_PLUGIN_IDS: Array<{ pluginId: string; providerId: string }> = [
   { pluginId: "minimax", providerId: "minimax-portal" },
 ];
 
+const WEB_SEARCH_PROVIDER_PLUGIN_IDS: Array<{ pluginId: string; providerId: string }> = [
+  { pluginId: "serper", providerId: "serper" },
+  { pluginId: "tavily", providerId: "tavily" },
+  { pluginId: "brave", providerId: "brave" },
+  { pluginId: "perplexity", providerId: "perplexity" },
+  { pluginId: "grok", providerId: "grok" },
+  { pluginId: "gemini", providerId: "gemini" },
+  { pluginId: "kimi", providerId: "kimi" },
+];
+
 function hasNonEmptyString(value: unknown): boolean {
   return typeof value === "string" && value.trim().length > 0;
 }
@@ -280,6 +290,19 @@ function isProviderConfigured(cfg: OpenClawConfig, providerId: string): boolean 
   return false;
 }
 
+function isWebSearchProviderConfigured(cfg: OpenClawConfig, providerId: string): boolean {
+  const tools = cfg.tools as Record<string, unknown> | undefined;
+  const web = tools?.web as Record<string, unknown> | undefined;
+  const search = web?.search as Record<string, unknown> | undefined;
+
+  if (!search) {
+    return false;
+  }
+
+  const configProvider = search.provider as string | undefined;
+  return configProvider?.toLowerCase() === providerId.toLowerCase();
+}
+
 function buildChannelToPluginIdMap(registry: PluginManifestRegistry): Map<string, string> {
   const map = new Map<string, string>();
   for (const record of registry.plugins) {
@@ -350,6 +373,15 @@ function resolveConfiguredPlugins(
       changes.push({
         pluginId: mapping.pluginId,
         reason: `${mapping.providerId} auth configured`,
+      });
+    }
+  }
+
+  for (const mapping of WEB_SEARCH_PROVIDER_PLUGIN_IDS) {
+    if (isWebSearchProviderConfigured(cfg, mapping.providerId)) {
+      changes.push({
+        pluginId: mapping.pluginId,
+        reason: `web search provider ${mapping.providerId} configured`,
       });
     }
   }
