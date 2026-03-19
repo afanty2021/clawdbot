@@ -860,4 +860,20 @@ describe("classifyFailoverReason", () => {
       ),
     ).toBe("timeout");
   });
+
+  it("classifies Z.AI error code 1308 (usage limit) as rate_limit", () => {
+    // Z.AI error code 1308 with Chinese message
+    expect(
+      classifyFailoverReason(
+        "LLM error 1308: 已达到 5 小时的使用上限。您的限额将在 2026-03-19 14:37:18 重置。",
+      ),
+    ).toBe("rate_limit");
+    // Error code 1308 alone
+    expect(classifyFailoverReason("Error 1308: Usage limit reached")).toBe("rate_limit");
+    // Chinese keywords without error code
+    expect(classifyFailoverReason("已达到使用上限")).toBe("rate_limit");
+    expect(classifyFailoverReason("限额已用完")).toBe("rate_limit");
+    expect(classifyFailoverReason("配额已耗尽")).toBe("rate_limit");
+    expect(classifyFailoverReason("达到上限")).toBe("rate_limit");
+  });
 });

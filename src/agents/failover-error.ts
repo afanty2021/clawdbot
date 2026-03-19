@@ -181,6 +181,7 @@ function classifyFailoverReasonFromSymbolicCode(raw: string | undefined): Failov
     case "THROTTLING":
     case "THROTTLINGEXCEPTION":
     case "THROTTLING_EXCEPTION":
+    case "1308": // Z.AI usage limit error code
       return "rate_limit";
     case "OVERLOADED":
     case "OVERLOADED_ERROR":

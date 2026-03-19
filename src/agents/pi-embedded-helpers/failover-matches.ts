@@ -3,6 +3,13 @@ type ErrorPattern = RegExp | string;
 const PERIODIC_USAGE_LIMIT_RE =
   /\b(?:daily|weekly|monthly)(?:\/(?:daily|weekly|monthly))* (?:usage )?limit(?:s)?(?: (?:exhausted|reached|exceeded))?\b/i;
 
+/** Z.AI error code 1308 = usage limit reached. */
+const ZAI_1308_RE = /\b1308\b/;
+
+/** Chinese usage limit keywords: 使用上限，限额，已用完，etc. */
+const CHINESE_USAGE_LIMIT_RE =
+  /(使用上限 | 限额 | 配额已用完 | 配额已耗尽 | 达到上限 | 超过限额 | 已达上限 | 限额已用完)/i;
+
 const ERROR_PATTERNS = {
   rateLimit: [
     /rate[_ ]limit|too many requests|429/,
@@ -15,6 +22,14 @@ const ERROR_PATTERNS = {
     /\btpm\b/i,
     "tokens per minute",
     "tokens per day",
+    // Chinese usage limit keywords
+    "使用上限",
+    "限额",
+    "配额已用完",
+    "配额已耗尽",
+    "达到上限",
+    "超过限额",
+    "已达上限",
   ],
   overloaded: [
     /overloaded_error|"type"\s*:\s*"overloaded_error"/i,
@@ -131,7 +146,9 @@ export function isTimeoutErrorMessage(raw: string): boolean {
 }
 
 export function isPeriodicUsageLimitErrorMessage(raw: string): boolean {
-  return PERIODIC_USAGE_LIMIT_RE.test(raw);
+  return (
+    PERIODIC_USAGE_LIMIT_RE.test(raw) || ZAI_1308_RE.test(raw) || CHINESE_USAGE_LIMIT_RE.test(raw)
+  );
 }
 
 export function isBillingErrorMessage(raw: string): boolean {
