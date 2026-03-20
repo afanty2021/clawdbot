@@ -83,10 +83,7 @@ const DEFAULT_ACCOUNT_ID = "default";
 const DEFAULT_AGENT_ID = "clawdbot";
 const DEFAULT_MAIN_KEY = "main";
 
-function buildAgentMainSessionKey(params: {
-  agentId: string;
-  mainKey?: string;
-}): string;
+function buildAgentMainSessionKey(params: { agentId: string; mainKey?: string }): string;
 
 function buildAgentPeerSessionKey(params: {
   agentId: string;

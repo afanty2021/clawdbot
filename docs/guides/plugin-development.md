@@ -334,10 +334,7 @@ describe("my-channel runtime", () => {
   });
 
   it("should send message", async () => {
-    const result = await runtime.sender.send(
-      { type: "user", id: "test-user" },
-      { text: "Hello" }
-    );
+    const result = await runtime.sender.send({ type: "user", id: "test-user" }, { text: "Hello" });
     expect(result.success).toBe(true);
   });
 });
@@ -844,7 +841,7 @@ describe("Echo Channel Runtime", () => {
     it("should send message with prefix", async () => {
       const result = await echoRuntime.sender.send(
         { id: "user123", type: "user", platform: "echo" },
-        { text: "Hello" }
+        { text: "Hello" },
       );
 
       expect(result.success).toBe(true);
@@ -854,7 +851,7 @@ describe("Echo Channel Runtime", () => {
     it("should handle empty messages", async () => {
       const result = await echoRuntime.sender.send(
         { id: "user123", type: "user", platform: "echo" },
-        {}
+        {},
       );
 
       expect(result.success).toBe(true);
@@ -916,17 +913,10 @@ openclaw message send --to echo:user123 --message "Hello Echo"
 
 ```typescript
 // 插件类型
-import type {
-  ChannelPlugin,
-  AuthPlugin,
-  OpenClawPluginApi,
-} from "openclaw/plugin-sdk";
+import type { ChannelPlugin, AuthPlugin, OpenClawPluginApi } from "openclaw/plugin-sdk";
 
 // 配置工具
-import {
-  emptyPluginConfigSchema,
-  defineConfigSchema,
-} from "openclaw/plugin-sdk";
+import { emptyPluginConfigSchema, defineConfigSchema } from "openclaw/plugin-sdk";
 
 // 运行时类型
 import type {
@@ -947,11 +937,7 @@ import type {
 } from "openclaw/plugin-sdk";
 
 // 认证类型
-import type {
-  ProviderAuthContext,
-  ProviderAuthResult,
-  AuthCredential,
-} from "openclaw/plugin-sdk";
+import type { ProviderAuthContext, ProviderAuthResult, AuthCredential } from "openclaw/plugin-sdk";
 ```
 
 ### OpenClawPluginApi
@@ -982,9 +968,7 @@ interface OpenClawPluginApi {
   };
 
   // 注册渠道
-  registerChannel(options: {
-    plugin: ChannelPlugin;
-  }): void;
+  registerChannel(options: { plugin: ChannelPlugin }): void;
 
   // 注册认证提供商
   registerProvider(options: {
@@ -1201,10 +1185,7 @@ export class FileHandler {
     return stats.size;
   }
 
-  async validateFile(
-    filepath: string,
-    maxSize: number = 10 * 1024 * 1024
-  ): Promise<boolean> {
+  async validateFile(filepath: string, maxSize: number = 10 * 1024 * 1024): Promise<boolean> {
     const size = await this.getFileSize(filepath);
     return size <= maxSize;
   }
@@ -1352,10 +1333,7 @@ export class MessageQueue {
     this.rateLimiter = rateLimiter;
   }
 
-  async enqueue(
-    target: OutboundTarget,
-    message: OutboundMessage
-  ): Promise<SendResult> {
+  async enqueue(target: OutboundTarget, message: OutboundMessage): Promise<SendResult> {
     return new Promise((resolve, reject) => {
       this.queue.push({ target, message, resolve, reject });
       this.process();
@@ -1487,7 +1465,7 @@ describe("Integration tests", () => {
 
     const result = await runtime.sender.send(
       { id: process.env.TEST_TARGET!, type: "user", platform: "test" },
-      { text: "Integration test message" }
+      { text: "Integration test message" },
     );
 
     expect(result.success).toBe(true);
@@ -1534,4 +1512,4 @@ describe("E2E tests", () => {
 
 ---
 
-*祝你开发顺利！如有问题，请提交 Issue 或参与讨论。*
+_祝你开发顺利！如有问题，请提交 Issue 或参与讨论。_

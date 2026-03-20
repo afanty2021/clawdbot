@@ -266,7 +266,7 @@ interface CommandResult<T = unknown> {
 interface ChannelStatus {
   channelId: string;
   account: string;
-  status: 'connected' | 'disconnected' | 'error';
+  status: "connected" | "disconnected" | "error";
   health?: {
     isHealthy: boolean;
     lastCheck: Date;
@@ -286,11 +286,11 @@ interface ChannelStatus {
 interface SessionInfo {
   key: string;
   model: string;
-  state: 'idle' | 'busy' | 'error';
+  state: "idle" | "busy" | "error";
   config: {
     thinkingLevel: ThinkingLevel;
     verboseLevel: number;
-    sendPolicy: 'auto' | 'manual';
+    sendPolicy: "auto" | "manual";
   };
   stats: {
     messageCount: number;
@@ -478,13 +478,13 @@ services:
       - key: PORT
         value: "8080"
       - key: SETUP_PASSWORD
-        sync: false          # 部署时提示输入
+        sync: false # 部署时提示输入
       - key: CLAWDBOT_STATE_DIR
         value: /data/.clawdbot
       - key: CLAWDBOT_WORKSPACE_DIR
         value: /data/workspace
       - key: CLAWDBOT_GATEWAY_TOKEN
-        generateValue: true  # 自动生成安全令牌
+        generateValue: true # 自动生成安全令牌
     disk:
       name: clawdbot-data
       mountPath: /data
@@ -493,11 +493,11 @@ services:
 
 **计划选择：**
 
-| 计划 | 闲置休眠 | 磁盘 | 适用场景 |
-|------|---------|------|---------|
-| Free | 15 分钟后 | 不可用 | 测试、演示 |
-| Starter | 从不 | 1GB+ | 个人使用、小团队 |
-| Standard+ | 从不 | 1GB+ | 生产环境、多渠道 |
+| 计划      | 闲置休眠  | 磁盘   | 适用场景         |
+| --------- | --------- | ------ | ---------------- |
+| Free      | 15 分钟后 | 不可用 | 测试、演示       |
+| Starter   | 从不      | 1GB+   | 个人使用、小团队 |
+| Standard+ | 从不      | 1GB+   | 生产环境、多渠道 |
 
 **部署后步骤：**
 
@@ -522,9 +522,9 @@ clawdbot onboard --auth-choice ai-gateway-api-key
 {
   agents: {
     defaults: {
-      model: { primary: "vercel-ai-gateway/anthropic/claude-opus-4.5" }
-    }
-  }
+      model: { primary: "vercel-ai-gateway/anthropic/claude-opus-4.5" },
+    },
+  },
 }
 ```
 
@@ -552,6 +552,7 @@ clawdbot onboard --non-interactive \
 ### 2026-01-26 10:30:00 - 同步上游新增功能
 
 **新增内容**
+
 - ✅ 添加 Render 部署支持文档
 - ✅ 添加 Vercel AI Gateway 提供商文档
 - ✅ 更新 Cron 工具描述（agents 模块）
@@ -559,6 +560,7 @@ clawdbot onboard --non-interactive \
 - ✅ 更新 docs.json 导航
 
 **上游提交**
+
 - Docs: add Render deployment guide (#1975)
 - Skills: add missing dependency metadata (#1995)
 - Agents: expand cron tool description (#1988)
@@ -567,6 +569,7 @@ clawdbot onboard --non-interactive \
 ### 2026-01-25 16:21:01 - 初始化文档
 
 **扫描结果**
+
 - ✅ 完成模块结构扫描
 - ✅ 识别 90+ TypeScript 文件
 - ✅ 识别所有命令和子命令
@@ -574,6 +577,7 @@ clawdbot onboard --non-interactive \
 - ✅ 分析配置和依赖关系
 
 **覆盖率**
+
 - 文件数：95
 - 测试文件：40+
 - 测试覆盖率：90%+

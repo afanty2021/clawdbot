@@ -9,15 +9,19 @@ OpenClaw 技能系统为 AI 代理提供专业领域能力。技能可以是 Pyt
 ## 技能类型
 
 ### 1. Python 技能
+
 使用 Python 编写，支持丰富的库和框架。
 
 ### 2. Shell 技能
+
 使用 Bash/Zsh 脚本，适合系统操作。
 
 ### 3. TypeScript 技能
+
 使用 TypeScript 编写，与 OpenClaw 核心集成。
 
 ### 4. 混合技能
+
 结合多种语言和工具。
 
 ## 技能结构
@@ -37,7 +41,8 @@ my-skill/
 ### 技能清单文件
 
 **SKILL.md**:
-```yaml
+
+````yaml
 ---
 name: my-skill
 description: My awesome skill
@@ -61,12 +66,13 @@ Brief description of what this skill does.
 cd {baseDir}
 pip install -r requirements.txt
 export API_KEY="your-key"
-```
+````
 
 ## Usage
 
 Basic usage instructions...
-```
+
+````
 
 ## 创建 Python 技能
 
@@ -76,12 +82,13 @@ Basic usage instructions...
 cd skills
 mkdir my-skill
 cd my-skill
-```
+````
 
 ### 2. 创建技能文档
 
 **SKILL.md**:
-```yaml
+
+````yaml
 ---
 name: my-skill
 description: A Python skill example
@@ -103,7 +110,7 @@ cd {baseDir}
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-```
+````
 
 ## Usage
 
@@ -122,7 +129,8 @@ pip install -r requirements.txt
 ./scripts/main.py "Test" --count 3
 # Output: Test Test Test
 ```
-```
+
+````
 
 ### 3. 创建主脚本
 
@@ -153,7 +161,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
+````
 
 ### 4. 设置可执行权限
 
@@ -166,6 +174,7 @@ chmod +x scripts/main.py
 ### 1. 创建脚本
 
 **scripts/main.sh**:
+
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -207,6 +216,7 @@ chmod +x scripts/main.sh
 ### 1. 创建脚本
 
 **scripts/main.ts**:
+
 ```typescript
 #!/usr/bin/env -S tsx
 import { parseArgs } from "node:util";
@@ -321,12 +331,14 @@ api_key = get_env_var("API_KEY", required=True)
 ### 5. 依赖管理
 
 **requirements.txt**:
+
 ```
 requests>=2.31.0
 python-dotenv>=1.0.0
 ```
 
 **pyproject.toml**:
+
 ```toml
 [project]
 name = "my-skill"
@@ -345,6 +357,7 @@ dev = ["pytest>=8.0.0"]
 ### 1. 单元测试
 
 **tests/test_main.py**:
+
 ```python
 import pytest
 from scripts.main import process_message
@@ -461,7 +474,7 @@ api.registerTool(
       },
       required: ["message"],
     },
-  }
+  },
 );
 ```
 
@@ -546,6 +559,7 @@ EOF
 ### Q: 技能脚本无法执行？
 
 A: 检查：
+
 1. 脚本是否有可执行权限 (`chmod +x`)
 2. Shebang 是否正确 (`#!/usr/bin/env python3`)
 3. 依赖是否已安装
@@ -553,6 +567,7 @@ A: 检查：
 ### Q: 如何调试技能？
 
 A:
+
 ```bash
 # 直接运行脚本
 ./scripts/main.py "debug" --verbose
@@ -567,6 +582,7 @@ python3 scripts/main.py "debug" 2>&1
 ### Q: 技能需要外部 API？
 
 A: 在 SKILL.md 中声明环境变量：
+
 ```yaml
 metadata:
   openclaw:
@@ -578,6 +594,7 @@ metadata:
 ### Q: 如何处理大型输出？
 
 A: 使用流式输出或分页：
+
 ```python
 import json
 
@@ -590,20 +607,24 @@ def stream_output(data):
 ## 相关资源
 
 ### 参考技能
+
 - `skills/local-places/` - Python 技能示例
 - `skills/tmux/` - Shell 技能示例
 - `skills/github/` - TypeScript 技能示例
 
 ### 工具
+
 - `skills/skill-creator/` - 技能创建器
 
 ### 文档
+
 - [Python 文档](https://docs.python.org/)
 - [Bash 参考手册](https://www.gnu.org/software/bash/manual/)
 
 ## 变更记录
 
 ### 2026-02-08 - 创建技能开发指南
+
 - ✅ 创建 `skills/SKILL_GUIDE.md`
 - 📋 添加各类技能开发教程
 - 🔧 补充最佳实践和测试方法

@@ -470,7 +470,9 @@ export function createTavilyWebSearchProvider(): WebSearchProviderPlugin {
       const mergedConfig: SearchConfigRecord | undefined = pluginConfig
         ? {
             ...(searchConfig ?? {}),
-            ...(pluginConfig.apiKey === undefined ? {} : { apiKey: pluginConfig.apiKey }),
+            ...(pluginConfig.apiKey === undefined || pluginConfig.apiKey === null
+              ? {}
+              : { apiKey: pluginConfig.apiKey as SearchConfigRecord["apiKey"] }),
           }
         : searchConfig;
 

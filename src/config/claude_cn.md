@@ -26,9 +26,7 @@ async function loadConfig(params?: {
   runtime?: RuntimeEnv;
 }): Promise<ClawdbotConfig>;
 
-async function readConfigFileSnapshot(params?: {
-  configPath?: string;
-}): Promise<string>;
+async function readConfigFileSnapshot(params?: { configPath?: string }): Promise<string>;
 
 async function writeConfigFile(params: {
   config: ClawdbotConfig;
@@ -40,10 +38,7 @@ async function writeConfigFile(params: {
 
 ```typescript
 // src/config/validation.ts
-async function validateConfigObject(params: {
-  config: unknown;
-  runtime?: RuntimeEnv;
-}): Promise<{
+async function validateConfigObject(params: { config: unknown; runtime?: RuntimeEnv }): Promise<{
   valid: boolean;
   errors?: string[];
   config?: ClawdbotConfig;
@@ -65,9 +60,7 @@ async function validateConfigObjectWithPlugins(params: {
 
 ```typescript
 // src/config/paths.ts
-function resolveConfigPath(params?: {
-  configPath?: string;
-}): string;
+function resolveConfigPath(params?: { configPath?: string }): string;
 
 function resolveDataDir(): string;
 
@@ -101,9 +94,7 @@ async function resolveConfigIncludes(params: {
 
 ```typescript
 // src/config/defaults.ts
-function applyConfigDefaults(params: {
-  config: Partial<ClawdbotConfig>;
-}): ClawdbotConfig;
+function applyConfigDefaults(params: { config: Partial<ClawdbotConfig> }): ClawdbotConfig;
 ```
 
 ### 配置迁移
@@ -330,16 +321,14 @@ function createConfigIO(): ConfigIO;
 
 ```typescript
 // src/config/io.ts
-async function resolveConfigSnapshotHash(params?: {
-  configPath?: string;
-}): Promise<string>;
+async function resolveConfigSnapshotHash(params?: { configPath?: string }): Promise<string>;
 ```
 
 ## 测试与质量
 
 ### 测试文件
 
-- **config.*.test.ts**: 大量配置测试文件
+- **config.\*.test.ts**: 大量配置测试文件
 - **schema.test.ts**: 模式测试
 - **validation.test.ts**: 验证测试（需要单独运行）
 

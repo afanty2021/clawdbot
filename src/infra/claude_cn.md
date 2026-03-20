@@ -41,15 +41,9 @@ function createLogger(options?: {
 
 ```typescript
 // 端口管理
-async function getAvailablePort(params?: {
-  host?: string;
-  port?: number;
-}): Promise<number>;
+async function getAvailablePort(params?: { host?: string; port?: number }): Promise<number>;
 
-async function isPortInUse(params: {
-  host: string;
-  port: number;
-}): Promise<boolean>;
+async function isPortInUse(params: { host: string; port: number }): Promise<boolean>;
 ```
 
 ### 网络工具 (net/)
@@ -82,9 +76,7 @@ function getEnv(key: string): string | undefined;
 function requireEnv(key: string): string;
 
 // .env 文件加载
-async function loadDotEnv(params?: {
-  path?: string;
-}): Promise<Record<string, string>>;
+async function loadDotEnv(params?: { path?: string }): Promise<Record<string, string>>;
 ```
 
 ### 错误处理 (errors.ts)
@@ -95,11 +87,7 @@ function isError(value: unknown): value is Error;
 
 function isAbortError(value: unknown): value is Error;
 
-function createError(params: {
-  message: string;
-  code?: string;
-  cause?: Error;
-}): Error;
+function createError(params: { message: string; code?: string; cause?: Error }): Error;
 ```
 
 ### 出站消息 (outbound/)
@@ -115,10 +103,7 @@ async function deliverMessage(params: {
 
 // src/infra/outbound/format.ts
 // 消息格式化
-function formatMessage(params: {
-  message: string;
-  channel: string;
-}): string;
+function formatMessage(params: { message: string; channel: string }): string;
 
 // src/infra/outbound/targets.ts
 // 目标解析
@@ -145,7 +130,7 @@ function resolveTarget(params: {
 - **fetch.ts**: HTTP 请求封装
 - **format-duration.ts**: 时长格式化
 - **gateway-lock.ts**: Gateway 锁
-- **heartbeat-*.ts**: 心跳相关
+- **heartbeat-\*.ts**: 心跳相关
 - **is-main.ts**: 主进程检测
 - **machine-name.ts**: 机器名称
 - **node-pairing.ts**: 节点配对

@@ -1,6 +1,6 @@
 # OpenClaw (Clawdbot) - AI 上下文索引
 
-> 更新时间：2026-03-02 11:30:00
+> 更新时间：2026-03-20 22:50:00
 
 ## 📊 文档覆盖率统计
 
@@ -371,6 +371,20 @@ pnpm test:coverage
 4. **配置目录**: `~/.config/openclaw/openclaw.json` (仅限 base_url)
 
 ## 🔄 变更记录
+
+### 2026-03-20 22:50:00 - 上游大规模同步与 Rebase 🚀
+
+- ✅ 从 upstream (openclaw/openclaw) 获取 152 个新提交
+- ✅ 成功完成 rebase 合并，保留本地 Serper/Tavily 搜索集成
+- ✅ 解决 24 个提交的冲突，包括目录重命名和内容冲突
+- 🔧 搜索服务增强：
+  - 保留本地 Serper.dev 搜索 API 提供商扩展
+  - 保留本地 Tavily AI 搜索 API 提供商扩展
+  - 保留 Z.AI 错误代码 1308 和中文使用限制检测
+- 📱 企业微信集成：上游新增 @wecom/wecom-openclaw-plugin v1.0.13 官方插件
+- 📊 AI 上下文文档系统：上游新增完整的 CLAUDE.md 文档体系
+- 🔗 Git 同步：本地分支成功 rebase 到 upstream/dc86b6d72a
+- 📈 扩展插件目录：新增 serper、tavily、brave、perplexity 等搜索提供商扩展
 
 ### 2026-03-02 11:30:00 - 上游同步检查与更新 🔄
 

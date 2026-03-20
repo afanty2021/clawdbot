@@ -118,10 +118,10 @@ function createChannelSessionContext(params: {
 
 ```typescript
 // src/channels/ack-reactions.ts
-function buildAckReaction(params: {
-  channel: ChannelId;
-  emoji?: string;
-}): { emoji: string; remove: boolean };
+function buildAckReaction(params: { channel: ChannelId; emoji?: string }): {
+  emoji: string;
+  remove: boolean;
+};
 
 // src/channels/channel-config.ts
 function resolveChannelConfig(params: {
@@ -151,28 +151,24 @@ function buildConversationLabel(params: {
 }): string;
 
 // src/channels/location.ts
-function resolveChannelLocation(params: {
-  channel: ChannelId;
-  context: Record<string, unknown>;
-}): { type: string; id: string; label?: string };
+function resolveChannelLocation(params: { channel: ChannelId; context: Record<string, unknown> }): {
+  type: string;
+  id: string;
+  label?: string;
+};
 
 // src/channels/reply-prefix.ts
-function buildReplyPrefix(params: {
-  channel: ChannelId;
-  senderLabel: string;
-}): string;
+function buildReplyPrefix(params: { channel: ChannelId; senderLabel: string }): string;
 
 // src/channels/sender-identity.ts
-function resolveSenderIdentity(params: {
-  channel: ChannelId;
-  context: Record<string, unknown>;
-}): { id: string; label: string; anonymous?: boolean };
+function resolveSenderIdentity(params: { channel: ChannelId; context: Record<string, unknown> }): {
+  id: string;
+  label: string;
+  anonymous?: boolean;
+};
 
 // src/channels/sender-label.ts
-function buildSenderLabel(params: {
-  channel: ChannelId;
-  context: Record<string, unknown>;
-}): string;
+function buildSenderLabel(params: { channel: ChannelId; context: Record<string, unknown> }): string;
 
 // src/channels/targets.ts
 function resolveChannelTarget(params: {

@@ -89,7 +89,12 @@ interface DiscordAPI {
   deleteMessage(channelId: string, messageId: string): Promise<void>;
   editMessage(channelId: string, messageId: string, content: string): Promise<void>;
   addReaction(channelId: string, messageId: string, emoji: string): Promise<void>;
-  removeReaction(channelId: string, messageId: string, emoji: string, userId?: string): Promise<void>;
+  removeReaction(
+    channelId: string,
+    messageId: string,
+    emoji: string,
+    userId?: string,
+  ): Promise<void>;
   createThread(channelId: string, messageId: string, name: string): Promise<string>;
 }
 ```
@@ -125,20 +130,26 @@ function resolveDiscordBotToken(accountId: string): string | undefined;
 ```typescript
 interface DiscordConfig {
   discord?: {
-    accounts?: Record<string, {
-      token?: string; // Discord Bot Token
-      config?: {
-        dm?: {
-          allowFrom?: Array<string | number>; // 允许的用户 ID
+    accounts?: Record<
+      string,
+      {
+        token?: string; // Discord Bot Token
+        config?: {
+          dm?: {
+            allowFrom?: Array<string | number>; // 允许的用户 ID
+          };
+          guilds?: Record<
+            string,
+            {
+              allowList?: string[]; // 频道白名单
+              requireMention?: boolean; // 是否需要 @ 提及
+              toolPolicy?: string; // 工具策略
+            }
+          >;
+          replyToMode?: "off" | "first" | "last" | "smart"; // 回复模式
         };
-        guilds?: Record<string, {
-          allowList?: string[]; // 频道白名单
-          requireMention?: boolean; // 是否需要 @ 提及
-          toolPolicy?: string; // 工具策略
-        }>;
-        replyToMode?: "off" | "first" | "last" | "smart"; // 回复模式
-      };
-    }>;
+      }
+    >;
   };
 }
 ```
@@ -276,6 +287,7 @@ A: 使用 `clawdbot channels auth discord` 命令配置，Token 存储在 `~/.co
 ### Q2: 如何添加 Discord Bot 到服务器？
 
 A: 使用 Discord OAuth2 URL 生成工具，添加以下权限：
+
 - `bot`
 - `applications.commands`
 - Scope: `bot`, `applications.commands`

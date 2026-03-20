@@ -102,11 +102,14 @@ function listSlackPins(channelId: string): Promise<Message[]>;
 // 其他
 function getSlackMemberInfo(userId: string): Promise<Member>;
 function listSlackEmojis(): Promise<Emoji[]>;
-function readSlackMessages(channelId: string, options?: {
-  limit?: number;
-  oldest?: string;
-  latest?: string;
-}): Promise<Message[]>;
+function readSlackMessages(
+  channelId: string,
+  options?: {
+    limit?: number;
+    oldest?: string;
+    latest?: string;
+  },
+): Promise<Message[]>;
 ```
 
 ### 探测接口
@@ -142,20 +145,26 @@ function resolveSlackAppToken(accountId: string): string | undefined;
 ```typescript
 interface SlackConfig {
   slack?: {
-    accounts?: Record<string, {
-      botToken?: string; // xoxb- 开头的 Bot Token
-      appToken?: string; // xapp- 开头的 App Token
-      dm?: {
-        allowFrom?: Array<string | number>; // 允许的用户 ID
-      };
-      channels?: Record<string, {
-        allowList?: string[]; // 用户白名单
-        requireMention?: boolean; // 是否需要 @ 提及
-        toolPolicy?: string; // 工具策略
-      }>;
-      replyToMode?: "off" | "first" | "last" | "all" | "smart"; // 回复模式
-      httpMode?: boolean; // HTTP 模式（vs Socket Mode）
-    }>;
+    accounts?: Record<
+      string,
+      {
+        botToken?: string; // xoxb- 开头的 Bot Token
+        appToken?: string; // xapp- 开头的 App Token
+        dm?: {
+          allowFrom?: Array<string | number>; // 允许的用户 ID
+        };
+        channels?: Record<
+          string,
+          {
+            allowList?: string[]; // 用户白名单
+            requireMention?: boolean; // 是否需要 @ 提及
+            toolPolicy?: string; // 工具策略
+          }
+        >;
+        replyToMode?: "off" | "first" | "last" | "all" | "smart"; // 回复模式
+        httpMode?: boolean; // HTTP 模式（vs Socket Mode）
+      }
+    >;
   };
 }
 ```
@@ -340,12 +349,14 @@ CLAWDBOT_LIVE_TEST=1 pnpm test:live src/slack
 ### Q1: Slack Bot Token 和 App Token 有什么区别？
 
 A:
+
 - **Bot Token** (xoxb-): 用于调用 Slack Web API
 - **App Token** (xapp-): 用于 Socket Mode 连接
 
 ### Q2: 如何创建 Slack App？
 
 A:
+
 1. 访问 https://api.slack.com/apps
 2. 点击 "Create New App"
 3. 选择 "From scratch"
@@ -375,6 +386,7 @@ A: 在 Slack 配置中设置 `dm.allowFrom` 白名单，只允许指定用户私
 ### Q8: Socket Mode 和 HTTP Mode 如何选择？
 
 A:
+
 - **Socket Mode**: 适合开发和小规模部署，无需公网服务器
 - **HTTP Mode**: 适合生产环境，需要公网服务器和 HTTPS
 

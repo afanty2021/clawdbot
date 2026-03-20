@@ -272,10 +272,7 @@ async function channelsStatus(params: {
   json?: boolean;
 }): Promise<ChannelStatus[]>;
 
-async function channelsAuth(params: {
-  channel: string;
-  account?: string;
-}): Promise<void>;
+async function channelsAuth(params: { channel: string; account?: string }): Promise<void>;
 
 async function channelsProbe(params: {
   channel?: string;
@@ -287,15 +284,9 @@ async function channelsProbe(params: {
 
 ```typescript
 // src/cli/config-cli.ts
-async function configGet(params: {
-  key: string;
-  format?: "json" | "yaml";
-}): Promise<unknown>;
+async function configGet(params: { key: string; format?: "json" | "yaml" }): Promise<unknown>;
 
-async function configSet(params: {
-  key: string;
-  value: string;
-}): Promise<void>;
+async function configSet(params: { key: string; value: string }): Promise<void>;
 
 async function configList(): Promise<Record<string, unknown>>;
 
@@ -320,24 +311,16 @@ async function daemonStop(): Promise<void>;
 
 async function daemonStatus(): Promise<DaemonStatus>;
 
-async function daemonInstall(params: {
-  platform?: "macos" | "linux" | "windows";
-}): Promise<void>;
+async function daemonInstall(params: { platform?: "macos" | "linux" | "windows" }): Promise<void>;
 ```
 
 ### Nodes CLI
 
 ```typescript
 // src/cli/nodes-cli.ts
-async function nodesStatus(params: {
-  all?: boolean;
-  probe?: boolean;
-}): Promise<NodeStatus[]>;
+async function nodesStatus(params: { all?: boolean; probe?: boolean }): Promise<NodeStatus[]>;
 
-async function nodesPair(params: {
-  code?: string;
-  timeoutMs?: number;
-}): Promise<void>;
+async function nodesPair(params: { code?: string; timeoutMs?: number }): Promise<void>;
 
 async function nodesCamera(params: {
   action: "start" | "stop" | "capture";
@@ -354,16 +337,9 @@ async function nodesScreen(params: {
   nodeId?: string;
 }): Promise<void>;
 
-async function nodesLocation(params: {
-  action: "get" | "watch";
-  nodeId?: string;
-}): Promise<void>;
+async function nodesLocation(params: { action: "get" | "watch"; nodeId?: string }): Promise<void>;
 
-async function nodesNotify(params: {
-  title: string;
-  body: string;
-  nodeId?: string;
-}): Promise<void>;
+async function nodesNotify(params: { title: string; body: string; nodeId?: string }): Promise<void>;
 
 async function nodesInvoke(params: {
   target: string;
@@ -379,14 +355,9 @@ async function nodesInvoke(params: {
 // src/cli/hooks-cli.ts
 async function hooksList(): Promise<HookInfo[]>;
 
-async function hooksInstall(params: {
-  hook: string;
-  force?: boolean;
-}): Promise<void>;
+async function hooksInstall(params: { hook: string; force?: boolean }): Promise<void>;
 
-async function hooksUninstall(params: {
-  hook: string;
-}): Promise<void>;
+async function hooksUninstall(params: { hook: string }): Promise<void>;
 
 async function hooksStatus(): Promise<HookStatus[]>;
 ```
@@ -421,10 +392,7 @@ async function modelsList(params: {
   capabilities?: string[];
 }): Promise<ModelInfo[]>;
 
-async function modelsTest(params: {
-  model: string;
-  prompt?: string;
-}): Promise<void>;
+async function modelsTest(params: { model: string; prompt?: string }): Promise<void>;
 ```
 
 ### Cron CLI
@@ -433,11 +401,7 @@ async function modelsTest(params: {
 // src/cli/cron-cli.ts
 async function cronList(): Promise<CronJob[]>;
 
-async function cronAdd(params: {
-  schedule: string;
-  agent: string;
-  message: string;
-}): Promise<void>;
+async function cronAdd(params: { schedule: string; agent: string; message: string }): Promise<void>;
 
 async function cronEdit(params: {
   id: string;
@@ -446,9 +410,7 @@ async function cronEdit(params: {
   message?: string;
 }): Promise<void>;
 
-async function cronRemove(params: {
-  id: string;
-}): Promise<void>;
+async function cronRemove(params: { id: string }): Promise<void>;
 ```
 
 ### 其他 CLI
@@ -492,10 +454,13 @@ interface CommandResult {
 }
 
 // JSON 输出
-function printCommandResult(result: CommandResult, options: {
-  json?: boolean;
-  pretty?: boolean;
-}): void;
+function printCommandResult(
+  result: CommandResult,
+  options: {
+    json?: boolean;
+    pretty?: boolean;
+  },
+): void;
 ```
 
 ### 进度上下文
@@ -589,6 +554,7 @@ A: 使用 `clawdbot dev` 或 `pnpm dev` 启动开发模式。
 ### Q10: CLI 支持哪些环境变量？
 
 A:
+
 - `CLAWDBOT_CONFIG`: 配置文件路径
 - `CLAWDBOT_VERBOSE`: 详细输出
 - `CLAWDBOT_DEBUG`: 调试模式

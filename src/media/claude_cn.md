@@ -18,10 +18,7 @@ interface MediaServer {
   getHost(): string;
 }
 
-async function createMediaServer(params: {
-  host?: string;
-  port?: number;
-}): Promise<MediaServer>;
+async function createMediaServer(params: { host?: string; port?: number }): Promise<MediaServer>;
 ```
 
 ### 媒体托管 (host.ts)
@@ -29,10 +26,7 @@ async function createMediaServer(params: {
 ```typescript
 // 媒体托管
 interface MediaHost {
-  uploadMedia(params: {
-    path: string;
-    contentType?: string;
-  }): Promise<{
+  uploadMedia(params: { path: string; contentType?: string }): Promise<{
     url: string;
     id: string;
   }>;
@@ -56,10 +50,7 @@ async function saveMediaBuffer(params: {
   contentType: string;
 }>;
 
-async function saveMediaFile(params: {
-  sourcePath: string;
-  targetDir?: string;
-}): Promise<{
+async function saveMediaFile(params: { sourcePath: string; targetDir?: string }): Promise<{
   path: string;
   contentType: string;
 }>;
@@ -69,31 +60,24 @@ async function saveMediaFile(params: {
 
 ```typescript
 // 媒体下载
-async function fetchMedia(params: {
-  url: string;
-  maxSize?: number;
-  timeout?: number;
-}): Promise<{
+async function fetchMedia(params: { url: string; maxSize?: number; timeout?: number }): Promise<{
   buffer: Buffer;
   contentType: string;
 }>;
 
-async function downloadMedia(params: {
-  url: string;
-  targetPath?: string;
-}): Promise<string>;
+async function downloadMedia(params: { url: string; targetPath?: string }): Promise<string>;
 ```
 
 ### 媒体解析 (parse.ts)
 
 ```typescript
 // 媒体解析
-async function parseMediaParams(params: {
-  text: string;
-}): Promise<Array<{
-  url: string;
-  caption?: string;
-}>>;
+async function parseMediaParams(params: { text: string }): Promise<
+  Array<{
+    url: string;
+    caption?: string;
+  }>
+>;
 ```
 
 ### 图片操作 (image-ops.ts)
@@ -118,13 +102,9 @@ async function optimizeImage(params: {
 
 ```typescript
 // 音频处理
-async function getAudioDuration(params: {
-  path: string;
-}): Promise<number>;
+async function getAudioDuration(params: { path: string }): Promise<number>;
 
-async function extractAudioTags(params: {
-  path: string;
-}): Promise<{
+async function extractAudioTags(params: { path: string }): Promise<{
   title?: string;
   artist?: string;
   album?: string;
@@ -136,11 +116,7 @@ async function extractAudioTags(params: {
 
 ```typescript
 // MIME 类型检测
-function detectMimeType(params: {
-  path?: string;
-  buffer?: Buffer;
-  filename?: string;
-}): string;
+function detectMimeType(params: { path?: string; buffer?: Buffer; filename?: string }): string;
 
 function isImageMimeType(mimeType: string): boolean;
 

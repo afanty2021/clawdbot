@@ -1,8 +1,10 @@
 # 仓库指南
+
 - 仓库: https://github.com/openclaw/openclaw
 - GitHub issues/comments/PR comments: 使用字面量多行字符串或 `-F - <<'EOF'` (或 `$'...'`) 来实现真正的换行；永远不要嵌入 `"\\n"`。
 
 ## 项目结构与模块组织
+
 - 源代码: `src/` (CLI 连接在 `src/cli`，命令在 `src/commands`，web provider 在 `src/provider-web.ts`，基础设施在 `src/infra`，媒体管道在 `src/media`)。
 - 测试: 同目录的 `*.test.ts` 文件。
 - 文档: `docs/` (图片、队列、Pi 配置)。构建输出在 `dist/`。
@@ -16,6 +18,7 @@
 - 添加渠道/扩展/应用/文档时，查看 `.github/labeler.yml` 以确保标签覆盖。
 
 ## 文档链接 (Mintlify)
+
 - 文档托管在 Mintlify (docs.openclaw.ai)。
 - `docs/**/*.md` 中的内部文档链接: 根相对路径，不带 `.md`/`.mdx`（例如: `[Config](/configuration)`）。
 - 章节交叉引用: 在根相对路径上使用锚点（例如: `[Hooks](/configuration#hooks)`）。
@@ -26,6 +29,7 @@
 - 文档内容必须是通用的: 没有个人设备名称/主机名/路径；使用占位符如 `user@gateway-host` 和 "gateway host"。
 
 ## exe.dev VM 运维 (通用)
+
 - 访问: 稳定路径是 `ssh exe.dev` 然后 `ssh vm-name`（假设已设置 SSH 密钥）。
 - SSH 不稳定: 使用 exe.dev web 终端或 Shelley (web agent)；为长时间操作保持 tmux 会话。
 - 更新: `sudo npm i -g openclaw@latest`（全局安装需要在 `/usr/lib/node_modules` 上有 root 权限）。
@@ -36,6 +40,7 @@
 - 验证: `openclaw channels status --probe`, `ss -ltnp | rg 18789`, `tail -n 120 /tmp/openclaw-gateway.log`。
 
 ## 构建、测试和开发命令
+
 - 运行时基线: Node **22+**（保持 Node + Bun 路径工作）。
 - 安装依赖: `pnpm install`
 - 预提交钩子: `prek install`（运行与 CI 相同的检查）
@@ -49,6 +54,7 @@
 - 测试: `pnpm test` (vitest); 覆盖率: `pnpm test:coverage`
 
 ## 编码风格和命名约定
+
 - 语言: TypeScript (ESM)。偏好严格类型；避免 `any`。
 - 通过 Oxlint 和 Oxfmt 进行格式化/linting；在提交前运行 `pnpm lint`。
 - 为棘手或非显而易见的逻辑添加简短的代码注释。
@@ -57,11 +63,13 @@
 - 命名: 使用 **OpenClaw** 作为产品/应用/文档标题；使用 `openclaw` 作为 CLI 命令、包/二进制文件、路径和配置键。
 
 ## 发布渠道（命名）
+
 - stable: 仅标记版本（例如 `vYYYY.M.D`），npm dist-tag `latest`。
 - beta: 预发布标签 `vYYYY.M.D-beta.N`，npm dist-tag `beta`（可能没有 macOS app）。
 - dev: 在 `main` 上的移动头部（无标签；git checkout main）。
 
 ## 测试指南
+
 - 框架: Vitest，V8 覆盖率阈值（70% 行/分支/函数/语句）。
 - 命名: 使用 `*.test.ts` 匹配源名称；e2e 在 `*.e2e.test.ts` 中。
 - 当你接触逻辑时，在推送前运行 `pnpm test`（或 `pnpm test:coverage`）。
@@ -72,6 +80,7 @@
 - 移动端: 在使用模拟器之前，检查连接的真实设备（iOS + Android）并在可用时优先使用它们。
 
 ## 提交和拉取请求指南
+
 - 使用 `scripts/committer "<msg>" <file...>` 创建提交；避免手动 `git add`/`git commit` 以保持暂存范围。
 - 遵循简洁、面向操作的提交消息（例如: `CLI: add verbose flag to send`）。
 - 分组相关更改；避免捆绑不相关的重构。
@@ -90,13 +99,16 @@
 - 合并 PR 后: 如果缺少贡献者，运行 `bun scripts/update-clawtributors.ts`，然后提交重新生成的 README。
 
 ## 简写命令
+
 - `sync`: 如果工作树是脏的，提交所有更改（选择一个合理的 Conventional Commit 消息），然后 `git pull --rebase`；如果 rebase 冲突且无法解决，停止；否则 `git push`。
 
 ### PR 工作流（审查 vs 登陆）
+
 - **审查模式（仅 PR 链接）:** 阅读 `gh pr view/diff`；**不要**切换分支；**不要**更改代码。
 - **登陆模式:** 从 `main` 创建集成分支，带入 PR 提交（**偏好 rebase** 以获得线性历史；当复杂性/冲突使其更安全时**允许 merge**），应用修复，添加 changelog（+ 感谢 + PR #），在最终提交前运行完整门控**本地**（`pnpm lint && pnpm build && pnpm test`），提交，合并回 `main`，然后 `git switch main`（登陆后永远不要停留在主题分支上）。重要：贡献者需要在此之后的 git 图中！
 
 ## 安全和配置提示
+
 - Web provider 在 `~/.openclaw/credentials/` 存储凭据；如果注销则重新运行 `openclaw login`。
 - Pi 会话默认位于 `~/.openclaw/sessions/` 下；基本目录不可配置。
 - 环境变量: 查看 `~/.profile`。
@@ -104,9 +116,11 @@
 - 发布流程: 在任何发布工作之前始终阅读 `docs/reference/RELEASING.md` 和 `docs/platforms/mac/release.md`；一旦这些文档回答，就不要提出常规问题。
 
 ## 故障排除
+
 - Rebrand/迁移问题或遗留配置/服务警告: 运行 `openclaw doctor`（参见 `docs/gateway/doctor.md`）。
 
 ## Agent 特定注释
+
 - 词汇: "makeup" = "mac app"。
 - 永远不要编辑 `node_modules`（全局/Homebrew/npm/git 安装也如此）。更新会覆盖。Skill 注释放在 `tools.md` 或 `AGENTS.md` 中。
 - Signal: "update fly" => `fly ssh console -a flawd-bot -C "bash -lc 'cd /data/clawd/openclaw && git pull --rebase origin main'"` 然后 `fly machines restart e825232f34d058 -a flawd-bot`。
@@ -155,6 +169,7 @@
 - 发布护栏: 不要在操作员明确同意的情况下更改版本号；始终在运行任何 npm publish/发布步骤之前请求许可。
 
 ## NPM + 1Password（发布/验证）
+
 - 使用 1password skill；所有 `op` 命令必须在新的 tmux 会话中运行。
 - 登录: `eval "$(op signin --account my.1password.com)"`（app 解锁 + 集成开启）。
 - OTP: `op read 'op://Private/Npmjs/one-time password?attribute=otp'`。

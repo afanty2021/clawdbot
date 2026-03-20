@@ -1,0 +1,52 @@
+{
+  "id": "tavily",
+  "name": "Tavily Plugin",
+  "description": "Tavily Search API provider - AI-optimized web search with advanced filtering",
+  "version": "1.0.0",
+  "type": "web-search-provider",
+  "author": "OpenClaw Community",
+  "license": "MIT",
+  "entry": "index.ts",
+  "capabilities": {
+    "webSearch": true
+  },
+  "credentials": {
+    "type": "api_key",
+    "envVar": "TAVILY_API_KEY",
+    "configPath": "plugins.entries.tavily.config.webSearch.apiKey"
+  },
+  "externalLinks": {
+    "signup": "https://tavily.com",
+    "docs": "https://docs.tavily.com",
+    "pricing": "https://tavily.com/pricing"
+  },
+  "uiHints": {
+    "webSearch.apiKey": {
+      "label": "Tavily API Key",
+      "help": "Tavily Search API key for AI-optimized web search (fallback: TAVILY_API_KEY env var).",
+      "sensitive": true
+    },
+    "webSearch.baseUrl": {
+      "label": "Tavily Base URL",
+      "help": "Optional Tavily API base URL override."
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "webSearch": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "apiKey": {
+            "type": ["string", "object"]
+          },
+          "baseUrl": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

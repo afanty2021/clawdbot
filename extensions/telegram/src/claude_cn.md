@@ -29,19 +29,19 @@ Telegram 模块实现了与 Telegram Bot API 的集成，基于 [grammy](https:/
 
 ```typescript
 // 1. 在 Gateway 中注册渠道
-import { createTelegramBot } from './telegram';
+import { createTelegramBot } from "./telegram";
 
 const bot = createTelegramBot({
   token: config.token,
   gateway: gatewayClient,
-  config: channelConfig
+  config: channelConfig,
 });
 
 // 2. 启动轮询或 webhook
 await bot.start();
 
 // 3. 处理更新
-bot.bot.on('message', bot.handleUpdate.bind(bot));
+bot.bot.on("message", bot.handleUpdate.bind(bot));
 ```
 
 ### 配置要求
@@ -138,8 +138,8 @@ interface TelegramTarget {
 
 ```typescript
 interface TelegramAccount {
-  channelId: 'telegram';
-  accountId: string;          // Bot 用户名（不含 @）
+  channelId: "telegram";
+  accountId: string; // Bot 用户名（不含 @）
   profile: {
     id: number;
     username?: string;
@@ -158,7 +158,7 @@ interface TelegramMessageContext {
   // 消息标识
   messageId: number;
   chatId: string;
-  threadId?: number;          // 主题 ID（Forum 群组）
+  threadId?: number; // 主题 ID（Forum 群组）
 
   // 发送者信息
   sender: {
@@ -170,7 +170,7 @@ interface TelegramMessageContext {
   };
 
   // 聊天类型
-  chatType: 'private' | 'group' | 'supergroup' | 'channel';
+  chatType: "private" | "group" | "supergroup" | "channel";
 
   // 消息内容
   text?: string;
@@ -337,6 +337,7 @@ const threadId = ctx.message.thread_id;
 ### 2026-01-25 16:21:01 - 初始化文档
 
 **扫描结果**
+
 - ✅ 完成模块结构扫描
 - ✅ 识别 60+ TypeScript 文件
 - ✅ 识别关键接口和类型
@@ -344,6 +345,7 @@ const threadId = ctx.message.thread_id;
 - ✅ 分析配置和依赖关系
 
 **覆盖率**
+
 - 文件数：65
 - 测试文件：25+
 - 测试覆盖率：95%+

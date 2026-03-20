@@ -18,9 +18,7 @@ interface BrowserServer {
   getStatus(): BrowserServerStatus;
 }
 
-async function createBrowserServer(params: {
-  config?: BrowserConfig;
-}): Promise<BrowserServer>;
+async function createBrowserServer(params: { config?: BrowserConfig }): Promise<BrowserServer>;
 ```
 
 ### 浏览器客户端 (client.ts)
@@ -33,9 +31,7 @@ interface BrowserClient {
   screenshot(targetId: string, options?: ScreenshotOptions): Promise<Buffer>;
 }
 
-async function createBrowserClient(params: {
-  serverUrl: string;
-}): Promise<BrowserClient>;
+async function createBrowserClient(params: { serverUrl: string }): Promise<BrowserClient>;
 ```
 
 ### Playwright 会话 (pw-session.ts)
@@ -79,10 +75,13 @@ interface BrowserConfig {
     headless?: boolean;
     args?: string[];
   };
-  profiles?: Record<string, {
-    path?: string;
-    incognito?: boolean;
-  }>;
+  profiles?: Record<
+    string,
+    {
+      path?: string;
+      incognito?: boolean;
+    }
+  >;
 }
 ```
 

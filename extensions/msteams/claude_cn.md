@@ -33,13 +33,13 @@ Microsoft Teams 扩展实现了与 Microsoft Teams 的集成，基于 Bot Framew
 
 ```typescript
 // 1. Gateway 加载扩展
-import { createTeamsChannel } from '@clawdbot/msteams';
+import { createTeamsChannel } from "@clawdbot/msteams";
 
 // 2. 创建渠道实例
 const teams = createTeamsChannel({
   config: teamsConfig,
   gateway: gatewayClient,
-  logger: logger
+  logger: logger,
 });
 
 // 3. 启动监控
@@ -161,8 +161,8 @@ interface TeamsTarget {
 
 ```typescript
 interface TeamsAccount {
-  channelId: 'msteams';
-  accountId: string;          // Bot ID
+  channelId: "msteams";
+  accountId: string; // Bot ID
   profile: {
     id: string;
     name: string;
@@ -224,12 +224,12 @@ interface TeamsAttachment {
 
   // 特殊类型
   contentType:
-    | 'application/vnd.microsoft.card.adaptive'  // 自适应卡片
-    | 'application/vnd.microsoft.card.hero'      // Hero 卡片
-    | 'application/vnd.microsoft.card.thumbnail' // 缩略图卡片
-    | 'image/png'                                // 图片
-    | 'audio/mp3'                                // 音频
-    | 'video/mp4';                               // 视频
+    | "application/vnd.microsoft.card.adaptive" // 自适应卡片
+    | "application/vnd.microsoft.card.hero" // Hero 卡片
+    | "application/vnd.microsoft.card.thumbnail" // 缩略图卡片
+    | "image/png" // 图片
+    | "audio/mp3" // 音频
+    | "video/mp4"; // 视频
 }
 ```
 
@@ -237,8 +237,8 @@ interface TeamsAttachment {
 
 ```typescript
 interface AdaptiveCard {
-  type: 'AdaptiveCard';
-  version: '1.4';
+  type: "AdaptiveCard";
+  version: "1.4";
   body: CardElement[];
   actions?: CardAction[];
   $schema?: string;
@@ -317,11 +317,7 @@ A: 使用文件同意流程：
 ```typescript
 // 1. 接收文件上传请求
 // 2. 发送文件同意卡片
-await sendFileConsentCard(
-  target,
-  uploadInfo,
-  consentContext
-);
+await sendFileConsentCard(target, uploadInfo, consentContext);
 
 // 3. 用户接受后，接收文件
 // 4. 通过 Graph API 下载文件
@@ -361,14 +357,14 @@ A: 使用 `sendCard` 方法：
 
 ```typescript
 const card: AdaptiveCard = {
-  type: 'AdaptiveCard',
-  version: '1.4',
+  type: "AdaptiveCard",
+  version: "1.4",
   body: [
     {
-      type: 'TextBlock',
-      text: 'Hello from Clawdbot!'
-    }
-  ]
+      type: "TextBlock",
+      text: "Hello from Clawdbot!",
+    },
+  ],
 };
 
 await target.sendCard(chatId, card);
@@ -446,6 +442,7 @@ await target.sendCard(chatId, card);
 ### 2026-01-25 16:21:01 - 初始化文档
 
 **扫描结果**
+
 - ✅ 完成模块结构扫描
 - ✅ 识别 45+ TypeScript 文件
 - ✅ 识别核心接口和类型
@@ -453,6 +450,7 @@ await target.sendCard(chatId, card);
 - ✅ 分析配置和依赖关系
 
 **覆盖率**
+
 - 文件数：50
 - 测试文件：20+
 - 测试覆盖率：90%+

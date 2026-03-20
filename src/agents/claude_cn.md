@@ -36,26 +36,26 @@ Agent 运行时模块是 Clawdbot 的 AI 执行引擎，负责：
 const runner = createAgentRunner({
   gateway: gatewayClient,
   config: agentConfig,
-  workspace: workspacePath
+  workspace: workspacePath,
 });
 
 // 2. 初始化工具
-await runner.registerTool('browser', browserTool);
-await runner.registerTool('bash', bashTool);
-await runner.registerTool('canvas', canvasTool);
+await runner.registerTool("browser", browserTool);
+await runner.registerTool("bash", bashTool);
+await runner.registerTool("canvas", canvasTool);
 // ... 其他工具
 
 // 3. 启动 Agent
 const agent = await runner.start({
-  sessionKey: 'main',
-  model: 'anthropic/claude-opus-4-5',
-  systemPrompt: customPrompt
+  sessionKey: "main",
+  model: "anthropic/claude-opus-4-5",
+  systemPrompt: customPrompt,
 });
 
 // 4. 发送消息
 const response = await agent.chat({
-  message: 'Hello, Clawdbot!',
-  stream: true
+  message: "Hello, Clawdbot!",
+  stream: true,
 });
 ```
 
@@ -111,7 +111,7 @@ interface Agent {
   // 会话信息
   readonly sessionKey: string;
   readonly model: string;
-  readonly state: 'idle' | 'busy' | 'error';
+  readonly state: "idle" | "busy" | "error";
 
   // 消息处理
   chat(request: ChatRequest): AsyncIterable<ChatDelta>;
@@ -212,10 +212,12 @@ interface Agent {
 ```
 
 **关键约束：**
+
 - `sessionTarget="main"` 必须 `payload.kind="systemEvent"`
 - `sessionTarget="isolated"` 必须 `payload.kind="agentTurn"`
 
 **唤醒模式：**
+
 - `next-heartbeat`（默认）：在下次心跳时唤醒
 - `now`：立即唤醒
 
@@ -271,8 +273,8 @@ interface AgentConfig {
   verboseLevel: number;
 
   // 会话配置
-  sendPolicy: 'auto' | 'manual';
-  groupActivation: 'mention' | 'always';
+  sendPolicy: "auto" | "manual";
+  groupActivation: "mention" | "always";
 
   // 工具配置
   tools: {
@@ -283,7 +285,7 @@ interface AgentConfig {
 
   // 沙箱配置
   sandbox?: {
-    mode: 'off' | 'main-only' | 'non-main' | 'all';
+    mode: "off" | "main-only" | "non-main" | "all";
     image?: string;
     allowList?: string[];
     denyList?: string[];
@@ -313,7 +315,7 @@ interface ChatRequest {
 ```typescript
 interface ChatDelta {
   // Delta 类型
-  type: 'text' | 'tool' | 'error' | 'end';
+  type: "text" | "tool" | "error" | "end";
 
   // 内容
   text?: string;
@@ -321,7 +323,7 @@ interface ChatDelta {
     name: string;
     input: unknown;
     output?: unknown;
-    status: 'start' | 'delta' | 'end' | 'error';
+    status: "start" | "delta" | "end" | "error";
   };
   error?: {
     code: number;
@@ -336,7 +338,7 @@ interface ChatDelta {
 interface AuthProfile {
   id: string;
   provider: string;
-  type: 'api-key' | 'oauth';
+  type: "api-key" | "oauth";
 
   // API Key 配置
   apiKey?: string;
@@ -365,10 +367,10 @@ interface AuthProfile {
 ```typescript
 interface BashToolOptions {
   // 执行模式
-  mode: 'host' | 'sandbox';
+  mode: "host" | "sandbox";
 
   // 审批策略
-  approval: 'auto' | 'manual' | 'elevated';
+  approval: "auto" | "manual" | "elevated";
 
   // 超时配置
   timeout: number;
@@ -512,7 +514,7 @@ A: 启用非 main 会话沙箱：
 
 A: 通过技能（Skills）系统：
 
-```bash
+````bash
 # 创建技能目录
 mkdir -p ~/clawd/skills/my-tool
 
@@ -533,12 +535,13 @@ cat > ~/clawd/skills/my-tool/SKILL.md <<'EOF'
     }
   }
 }
-```
+````
 
 ## 工具实现
 
 ... 实现代码 ...
 EOF
+
 ```
 
 ## 相关文件清单
@@ -614,3 +617,4 @@ EOF
 - 测试文件：50+
 - 测试覆盖率：88%+
 - 文档完整性：100%
+```

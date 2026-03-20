@@ -38,7 +38,7 @@ const config = await loadConfig();
 const gateway = new Gateway({
   port: config.gateway.port,
   bind: config.gateway.bind,
-  auth: config.gateway.auth
+  auth: config.gateway.auth,
 });
 
 // 3. 启动服务器
@@ -200,26 +200,26 @@ Gateway 同时提供 HTTP 接口（与 WebSocket 共享端口）：
 interface GatewayConfig {
   // 网络配置
   port: number;
-  bind: 'loopback' | 'all';
+  bind: "loopback" | "all";
   host?: string;
 
   // 认证配置
   auth: {
-    mode: 'off' | 'password' | 'tailscale';
+    mode: "off" | "password" | "tailscale";
     password?: string;
     allowTailscale?: boolean;
   };
 
   // Tailscale 集成
   tailscale?: {
-    mode: 'off' | 'serve' | 'funnel';
+    mode: "off" | "serve" | "funnel";
     resetOnExit?: boolean;
     funnels?: string[];
   };
 
   // 限制配置
-  maxPayload?: number;       // 最大消息负载（字节）
-  maxClients?: number;       // 最大客户端连接数
+  maxPayload?: number; // 最大消息负载（字节）
+  maxClients?: number; // 最大客户端连接数
 }
 ```
 
@@ -228,16 +228,16 @@ interface GatewayConfig {
 ```typescript
 interface Session {
   // 会话标识
-  key: string;               // 如 'main', 'telegram:123456789'
+  key: string; // 如 'main', 'telegram:123456789'
   agentId: string;
 
   // 配置
   config: {
     model: string;
-    thinkingLevel: 'off' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh';
+    thinkingLevel: "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
     verboseLevel: number;
-    sendPolicy: 'auto' | 'manual';
-    groupActivation: 'mention' | 'always';
+    sendPolicy: "auto" | "manual";
+    groupActivation: "mention" | "always";
   };
 
   // 状态
@@ -266,7 +266,7 @@ class GatewayClient {
 
   // 认证
   isAuthenticated: boolean;
-  authType: 'password' | 'tailscale' | 'node';
+  authType: "password" | "tailscale" | "node";
 
   // 订阅
   subscriptions: Set<string>;
@@ -283,7 +283,7 @@ class GatewayClient {
 interface ChannelStatus {
   channelId: string;
   account: string;
-  status: 'connected' | 'disconnected' | 'error';
+  status: "connected" | "disconnected" | "error";
   health: {
     isHealthy: boolean;
     lastProbeAt: Date;
@@ -336,16 +336,18 @@ pnpm test:docker:live-gateway
 A: 有两种方式：
 
 1. **SSH 隧道**：
+
 ```bash
 ssh -L 18789:127.0.0.1:18789 user@gateway-host
 ```
 
 2. **Tailscale Serve/Funnel**：
+
 ```json
 {
   "gateway": {
     "tailscale": {
-      "mode": "serve"  // 或 "funnel" 用于公网访问
+      "mode": "serve" // 或 "funnel" 用于公网访问
     }
   }
 }
@@ -447,6 +449,7 @@ clawdbot config reload
 ### 2026-01-25 16:21:01 - 初始化文档
 
 **扫描结果**
+
 - ✅ 完成模块结构扫描
 - ✅ 识别 80+ TypeScript 文件
 - ✅ 识别核心接口和协议
@@ -454,6 +457,7 @@ clawdbot config reload
 - ✅ 分析配置和依赖关系
 
 **覆盖率**
+
 - 文件数：85
 - 测试文件：30+
 - 测试覆盖率：85%+

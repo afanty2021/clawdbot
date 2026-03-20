@@ -50,15 +50,9 @@ type HookEvent = {
   data: Record<string, unknown>;
 };
 
-function registerHook(
-  eventType: HookEventType,
-  handler: HookHandler,
-): void;
+function registerHook(eventType: HookEventType, handler: HookHandler): void;
 
-function unregisterHook(
-  eventType: HookEventType,
-  handler: HookHandler,
-): void;
+function unregisterHook(eventType: HookEventType, handler: HookHandler): void;
 
 function clearHooks(eventType?: HookEventType): void;
 
@@ -66,10 +60,7 @@ function getRegisteredHookEventKeys(): HookEventType[];
 
 function triggerHook(event: HookEvent): Promise<void>;
 
-function createHookEvent(params: {
-  type: HookEventType;
-  data: Record<string, unknown>;
-}): HookEvent;
+function createHookEvent(params: { type: HookEventType; data: Record<string, unknown> }): HookEvent;
 ```
 
 ### 钩子加载
@@ -82,10 +73,7 @@ interface HookLoadResult {
   eventType: HookEventType;
 }
 
-async function loadHook(params: {
-  path: string;
-  eventType?: string;
-}): Promise<HookLoadResult>;
+async function loadHook(params: { path: string; eventType?: string }): Promise<HookLoadResult>;
 
 async function loadHooks(params: {
   hooks: Array<{
@@ -106,14 +94,9 @@ async function installHook(params: {
   targetDir?: string;
 }): Promise<void>;
 
-async function uninstallHook(params: {
-  name: string;
-  hookDir?: string;
-}): Promise<void>;
+async function uninstallHook(params: { name: string; hookDir?: string }): Promise<void>;
 
-async function listInstalledHooks(params: {
-  hookDir?: string;
-}): Promise<string[]>;
+async function listInstalledHooks(params: { hookDir?: string }): Promise<string[]>;
 ```
 
 ### Gmail 钩子
@@ -164,9 +147,7 @@ interface HooksConfig {
   hooksDir?: string;
 }
 
-function resolveHooksConfig(params: {
-  config: ClawdbotConfig;
-}): HooksConfig;
+function resolveHooksConfig(params: { config: ClawdbotConfig }): HooksConfig;
 ```
 
 ### 钩子目录
@@ -182,9 +163,7 @@ function listBundledHooks(): string[];
 
 ```typescript
 // src/hooks/workspace.ts
-async function loadWorkspaceHooks(params: {
-  workspaceDir?: string;
-}): Promise<HookLoadResult[]>;
+async function loadWorkspaceHooks(params: { workspaceDir?: string }): Promise<HookLoadResult[]>;
 ```
 
 ## 数据模型

@@ -64,10 +64,7 @@ function buildSessionLabel(params: {
   peerLabel?: string;
 }): string;
 
-function formatSessionLabel(params: {
-  label: string;
-  maxLength?: number;
-}): string;
+function formatSessionLabel(params: { label: string; maxLength?: number }): string;
 ```
 
 ### 转录事件

@@ -52,10 +52,7 @@ async function createWaSocket(params: {
 }>;
 
 // 等待连接
-async function waitForWaConnection(params: {
-  socket: WASocket;
-  timeoutMs: number;
-}): Promise<void>;
+async function waitForWaConnection(params: { socket: WASocket; timeoutMs: number }): Promise<void>;
 ```
 
 ### 监听器核心
@@ -174,16 +171,10 @@ async function loginWeb(params: {
 }>;
 
 // 登出
-async function logoutWeb(params: {
-  account?: string;
-  authDir?: string;
-}): Promise<void>;
+async function logoutWeb(params: { account?: string; authDir?: string }): Promise<void>;
 
 // 检查认证是否存在
-function webAuthExists(params: {
-  account?: string;
-  authDir?: string;
-}): boolean;
+function webAuthExists(params: { account?: string; authDir?: string }): boolean;
 
 // 记录电话号码
 function logWebSelfId(account: string, phoneNumber: string): void;
@@ -225,22 +216,25 @@ import makeWASocket, {
 interface WebConfig {
   channels?: {
     whatsapp?: {
-      accounts?: Record<string, {
-        authDir?: string; // 认证目录
-        linkPreview?: boolean; // 链接预览
-        autoReply?: boolean; // 自动回复
-        allowBroadcasts?: boolean; // 允许广播列表
-        heartbeat?: {
-          intervalMs?: number; // 心跳间隔
-          recipients?: string[]; // 心跳接收者
-        };
-        allowFrom?: Array<string | number>; // 允许的发送者
-        groupAllowFrom?: Array<string | number>; // 允许的群组 ID
-        alwaysActivateGroups?: string[]; // 始终激活的群组
-        requireMention?: boolean; // 群组是否需要 @ 提及
-        toolPolicy?: string; // 工具策略
-        mediaMaxMb?: number; // 媒体大小限制（MB）
-      }>;
+      accounts?: Record<
+        string,
+        {
+          authDir?: string; // 认证目录
+          linkPreview?: boolean; // 链接预览
+          autoReply?: boolean; // 自动回复
+          allowBroadcasts?: boolean; // 允许广播列表
+          heartbeat?: {
+            intervalMs?: number; // 心跳间隔
+            recipients?: string[]; // 心跳接收者
+          };
+          allowFrom?: Array<string | number>; // 允许的发送者
+          groupAllowFrom?: Array<string | number>; // 允许的群组 ID
+          alwaysActivateGroups?: string[]; // 始终激活的群组
+          requireMention?: boolean; // 群组是否需要 @ 提及
+          toolPolicy?: string; // 工具策略
+          mediaMaxMb?: number; // 媒体大小限制（MB）
+        }
+      >;
     };
   };
 }
@@ -340,10 +334,18 @@ interface WhatsAppMessageEvent {
       fileSha256: Buffer;
       fileLength: number;
     };
-    videoMessage?: { /* ... */ };
-    audioMessage?: { /* ... */ };
-    documentMessage?: { /* ... */ };
-    stickerMessage?: { /* ... */ };
+    videoMessage?: {
+      /* ... */
+    };
+    audioMessage?: {
+      /* ... */
+    };
+    documentMessage?: {
+      /* ... */
+    };
+    stickerMessage?: {
+      /* ... */
+    };
   };
 
   // 消息元数据
@@ -472,6 +474,7 @@ CLAWDBOT_LIVE_TEST=1 pnpm test:live src/web
 ### Q1: WhatsApp Web 模块如何配置？
 
 A:
+
 1. 运行 `clawdbot channels auth whatsapp` 生成 QR 码
 2. 用手机 WhatsApp 扫描 QR 码
 3. 认证信息保存在 `~/.config/clawdbot/web_auth`
@@ -527,6 +530,7 @@ A: WhatsApp 模块支持订阅频道（Channels），但只读（无法发送消
 ### Q12: 如何调试 WhatsApp 连接问题？
 
 A:
+
 1. 检查认证文件是否存在: `ls ~/.config/clawdbot/web_auth`
 2. 使用 `clawdbot channels status --probe` 探测连接
 3. 查看 Baileys 日志
