@@ -1,6 +1,6 @@
 # OpenClaw (Clawdbot) - AI 上下文索引
 
-> 更新时间：2026-03-20 22:50:00
+> 更新时间：2026-03-21 00:00:10
 
 ## 📊 文档覆盖率统计
 
@@ -371,6 +371,22 @@ pnpm test:coverage
 4. **配置目录**: `~/.config/openclaw/openclaw.json` (仅限 base_url)
 
 ## 🔄 变更记录
+
+### 2026-03-21 00:00:10 - 上游同步合并 🚀
+
+- ✅ 从 upstream (openclaw/openclaw) 获取 20+ 个新提交
+- ✅ 成功完成 merge 合并（提交 4ccf90b511）
+- ✅ 解决 2 个文件冲突：CHANGELOG.md、docs/docs.json
+- 🔧 主要上游更新：
+  - subagent 超时处理修复（包含部分进度）
+  - web search provider 配置验证增强
+  - context engine 转录维护功能
+  - Slack slash conversation runtime mock 统一
+  - 广播频道扫描优化（显式频道时跳过）
+  - 测试覆盖率改进（live model coverage、plugin coverage）
+  - Anthropic Vertex AI 提供商支持
+- 🔗 Git 同步：合并 upstream/main (598f1826d8) 到本地
+- 📈 保留本地 Serper/Tavily 搜索扩展
 
 ### 2026-03-20 22:50:00 - 上游大规模同步与 Rebase 🚀
 
