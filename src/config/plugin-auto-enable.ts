@@ -1,10 +1,6 @@
-import { hasAnyWhatsAppAuth } from "../../extensions/whatsapp/api.js";
+import fs from "node:fs";
+import path from "node:path";
 import { normalizeProviderId } from "../agents/model-selection.js";
-import { hasMeaningfulChannelConfig } from "../channels/config-presence.js";
-import {
-  getChannelPluginCatalogEntry,
-  listChannelPluginCatalogEntries,
-} from "../channels/plugins/catalog.js";
 import {
   getChatChannelMeta,
   listChatChannels,
@@ -14,7 +10,8 @@ import {
   loadPluginManifestRegistry,
   type PluginManifestRegistry,
 } from "../plugins/manifest-registry.js";
-import { isRecord } from "../utils.js";
+import { isRecord, resolveConfigDir, resolveUserPath } from "../utils.js";
+import { isChannelConfigured } from "./channel-configured.js";
 import type { OpenClawConfig } from "./config.js";
 import { ensurePluginAllowlisted } from "./plugins-allowlist.js";
 
@@ -26,6 +23,11 @@ type PluginEnableChange = {
 export type PluginAutoEnableResult = {
   config: OpenClawConfig;
   changes: string[];
+};
+
+const EMPTY_PLUGIN_MANIFEST_REGISTRY: PluginManifestRegistry = {
+  plugins: [],
+  diagnostics: [],
 };
 
 const PROVIDER_PLUGIN_IDS: Array<{ pluginId: string; providerId: string }> = [
@@ -44,6 +46,8 @@ const WEB_SEARCH_PROVIDER_PLUGIN_IDS: Array<{ pluginId: string; providerId: stri
   { pluginId: "gemini", providerId: "gemini" },
   { pluginId: "kimi", providerId: "kimi" },
 ];
+
+const ENV_CATALOG_PATHS = ["OPENCLAW_PLUGIN_CATALOG_PATHS", "OPENCLAW_MPM_CATALOG_PATHS"];
 
 function hasNonEmptyString(value: unknown): boolean {
   return typeof value === "string" && value.trim().length > 0;
@@ -315,6 +319,89 @@ function buildChannelToPluginIdMap(registry: PluginManifestRegistry): Map<string
   return map;
 }
 
+type ExternalCatalogChannelEntry = {
+  id: string;
+  preferOver: string[];
+};
+
+function splitEnvPaths(value: string): string[] {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return [];
+  }
+  return trimmed
+    .split(/[;,]/g)
+    .flatMap((chunk) => chunk.split(path.delimiter))
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function resolveExternalCatalogPaths(env: NodeJS.ProcessEnv): string[] {
+  for (const key of ENV_CATALOG_PATHS) {
+    const raw = env[key];
+    if (raw && raw.trim()) {
+      return splitEnvPaths(raw);
+    }
+  }
+  const configDir = resolveConfigDir(env);
+  return [
+    path.join(configDir, "mpm", "plugins.json"),
+    path.join(configDir, "mpm", "catalog.json"),
+    path.join(configDir, "plugins", "catalog.json"),
+  ];
+}
+
+function parseExternalCatalogChannelEntries(raw: unknown): ExternalCatalogChannelEntry[] {
+  const list = (() => {
+    if (Array.isArray(raw)) {
+      return raw;
+    }
+    if (!isRecord(raw)) {
+      return [];
+    }
+    const entries = raw.entries ?? raw.packages ?? raw.plugins;
+    return Array.isArray(entries) ? entries : [];
+  })();
+
+  const channels: ExternalCatalogChannelEntry[] = [];
+  for (const entry of list) {
+    if (!isRecord(entry) || !isRecord(entry.openclaw) || !isRecord(entry.openclaw.channel)) {
+      continue;
+    }
+    const channel = entry.openclaw.channel;
+    const id = typeof channel.id === "string" ? channel.id.trim() : "";
+    if (!id) {
+      continue;
+    }
+    const preferOver = Array.isArray(channel.preferOver)
+      ? channel.preferOver.filter((value): value is string => typeof value === "string")
+      : [];
+    channels.push({ id, preferOver });
+  }
+  return channels;
+}
+
+function resolveExternalCatalogPreferOver(channelId: string, env: NodeJS.ProcessEnv): string[] {
+  for (const rawPath of resolveExternalCatalogPaths(env)) {
+    const resolved = resolveUserPath(rawPath, env);
+    if (!fs.existsSync(resolved)) {
+      continue;
+    }
+    try {
+      const payload = JSON.parse(fs.readFileSync(resolved, "utf-8")) as unknown;
+      const channel = parseExternalCatalogChannelEntries(payload).find(
+        (entry) => entry.id === channelId,
+      );
+      if (channel) {
+        return channel.preferOver;
+      }
+    } catch {
+      // Ignore invalid catalog files.
+    }
+  }
+  return [];
+}
+
 function resolvePluginIdForChannel(
   channelId: string,
   channelToPluginId: ReadonlyMap<string, string>,
@@ -328,17 +415,12 @@ function resolvePluginIdForChannel(
   return channelToPluginId.get(channelId) ?? channelId;
 }
 
-function listKnownChannelPluginIds(env: NodeJS.ProcessEnv): string[] {
-  return Array.from(
-    new Set([
-      ...listChatChannels().map((meta) => meta.id),
-      ...listChannelPluginCatalogEntries({ env }).map((entry) => entry.id),
-    ]),
-  );
+function listKnownChannelPluginIds(): string[] {
+  return listChatChannels().map((meta) => meta.id);
 }
 
-function collectCandidateChannelIds(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): string[] {
-  const channelIds = new Set<string>(listKnownChannelPluginIds(env));
+function collectCandidateChannelIds(cfg: OpenClawConfig): string[] {
+  const channelIds = new Set<string>(listKnownChannelPluginIds());
   const configuredChannels = cfg.channels as Record<string, unknown> | undefined;
   if (!configuredChannels || typeof configuredChannels !== "object") {
     return Array.from(channelIds);
@@ -353,6 +435,22 @@ function collectCandidateChannelIds(cfg: OpenClawConfig, env: NodeJS.ProcessEnv)
   return Array.from(channelIds);
 }
 
+function configMayNeedPluginManifestRegistry(cfg: OpenClawConfig): boolean {
+  const configuredChannels = cfg.channels as Record<string, unknown> | undefined;
+  if (!configuredChannels || typeof configuredChannels !== "object") {
+    return false;
+  }
+  for (const key of Object.keys(configuredChannels)) {
+    if (key === "defaults" || key === "modelByChannel") {
+      continue;
+    }
+    if (!normalizeChatChannelId(key)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function resolveConfiguredPlugins(
   cfg: OpenClawConfig,
   env: NodeJS.ProcessEnv,
@@ -361,7 +459,7 @@ function resolveConfiguredPlugins(
   const changes: PluginEnableChange[] = [];
   // Build reverse map: channel ID → plugin ID from installed plugin manifests.
   const channelToPluginId = buildChannelToPluginIdMap(registry);
-  for (const channelId of collectCandidateChannelIds(cfg, env)) {
+  for (const channelId of collectCandidateChannelIds(cfg)) {
     const pluginId = resolvePluginIdForChannel(channelId, channelToPluginId);
     if (isChannelConfigured(cfg, channelId, env)) {
       changes.push({ pluginId, reason: `${channelId} configured` });
@@ -421,13 +519,22 @@ function isPluginDenied(cfg: OpenClawConfig, pluginId: string): boolean {
   return Array.isArray(deny) && deny.includes(pluginId);
 }
 
-function resolvePreferredOverIds(pluginId: string, env: NodeJS.ProcessEnv): string[] {
+function resolvePreferredOverIds(
+  pluginId: string,
+  env: NodeJS.ProcessEnv,
+  registry: PluginManifestRegistry,
+): string[] {
   const normalized = normalizeChatChannelId(pluginId);
   if (normalized) {
     return getChatChannelMeta(normalized).preferOver ?? [];
   }
-  const catalogEntry = getChannelPluginCatalogEntry(pluginId, { env });
-  return catalogEntry?.meta.preferOver ?? [];
+  const installedChannelMeta = registry.plugins.find(
+    (record) => record.id === pluginId,
+  )?.channelCatalogMeta;
+  if (installedChannelMeta?.preferOver?.length) {
+    return installedChannelMeta.preferOver;
+  }
+  return resolveExternalCatalogPreferOver(pluginId, env);
 }
 
 function shouldSkipPreferredPluginAutoEnable(
@@ -435,6 +542,7 @@ function shouldSkipPreferredPluginAutoEnable(
   entry: PluginEnableChange,
   configured: PluginEnableChange[],
   env: NodeJS.ProcessEnv,
+  registry: PluginManifestRegistry,
 ): boolean {
   for (const other of configured) {
     if (other.pluginId === entry.pluginId) {
@@ -446,7 +554,7 @@ function shouldSkipPreferredPluginAutoEnable(
     if (isPluginExplicitlyDisabled(cfg, other.pluginId)) {
       continue;
     }
-    const preferOver = resolvePreferredOverIds(other.pluginId, env);
+    const preferOver = resolvePreferredOverIds(other.pluginId, env, registry);
     if (preferOver.includes(entry.pluginId)) {
       return true;
     }
@@ -510,7 +618,10 @@ export function applyPluginAutoEnable(params: {
 }): PluginAutoEnableResult {
   const env = params.env ?? process.env;
   const registry =
-    params.manifestRegistry ?? loadPluginManifestRegistry({ config: params.config, env });
+    params.manifestRegistry ??
+    (configMayNeedPluginManifestRegistry(params.config)
+      ? loadPluginManifestRegistry({ config: params.config, env })
+      : EMPTY_PLUGIN_MANIFEST_REGISTRY);
   const configured = resolveConfiguredPlugins(params.config, env, registry);
   if (configured.length === 0) {
     return { config: params.config, changes: [] };
@@ -531,11 +642,12 @@ export function applyPluginAutoEnable(params: {
     if (isPluginExplicitlyDisabled(next, entry.pluginId)) {
       continue;
     }
-    if (shouldSkipPreferredPluginAutoEnable(next, entry, configured, env)) {
+    if (shouldSkipPreferredPluginAutoEnable(next, entry, configured, env, registry)) {
       continue;
     }
     const allow = next.plugins?.allow;
-    const allowMissing = Array.isArray(allow) && !allow.includes(entry.pluginId);
+    const allowMissing =
+      builtInChannelId == null && Array.isArray(allow) && !allow.includes(entry.pluginId);
     const alreadyEnabled =
       builtInChannelId != null
         ? (() => {
@@ -555,7 +667,7 @@ export function applyPluginAutoEnable(params: {
       continue;
     }
     next = registerPluginEntry(next, entry.pluginId);
-    if (allowMissing || !builtInChannelId) {
+    if (!builtInChannelId) {
       next = ensurePluginAllowlisted(next, entry.pluginId);
     }
     changes.push(formatAutoEnableChange(entry));

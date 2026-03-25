@@ -153,6 +153,8 @@ export function createCronTool(opts?: CronToolOptions): AnyAgentTool {
   return {
     label: "Cron",
     name: "cron",
+    ownerOnly: true,
+    displaySummary: "Schedule and manage cron jobs and wake events.",
     description: `Manage Gateway cron jobs (status/list/add/update/remove/run/runs) and send wake events.
 
 ACTIONS:
