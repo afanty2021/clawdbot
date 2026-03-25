@@ -1,0 +1,31 @@
+{
+  "name": "invoice-approval",
+  "version": "1.0.0",
+  "description": "企业微信发票审批自动化技能。自动处理发票上传、ETM Plus API 集成、审批流程管理。",
+  "author": "OpenClaw",
+  "license": "MIT",
+  "triggers": [
+    {
+      "type": "file",
+      "channel": "wecom",
+      "description": "当企业微信用户发送发票文件时触发"
+    },
+    {
+      "type": "message",
+      "pattern": "^(审批|批准|回复)\\s*[1-3]$",
+      "channel": "wecom",
+      "description": "当审批者回复数字选项时触发"
+    }
+  ],
+  "capabilities": [
+    "etm_api.upload_invoice",
+    "etm_api.approval_reply",
+    "message.send",
+    "message.interactive"
+  ],
+  "settings": {
+    "timeout_ms": 86400000,
+    "auto_approve_corporate": true,
+    "notify_applicant": true
+  }
+}

@@ -228,6 +228,16 @@ const McpConfigSchema = z
   .strict()
   .optional();
 
+const EtmConfigSchema = z
+  .object({
+    api_base: z.string().optional(),
+    timeout_ms: z.number().optional(),
+    max_retries: z.number().optional(),
+    retry_delay_ms: z.number().optional(),
+  })
+  .strict()
+  .optional();
+
 export const OpenClawSchema = z
   .object({
     $schema: z.string().optional(),
@@ -877,6 +887,7 @@ export const OpenClawSchema = z
       .optional(),
     memory: MemorySchema,
     mcp: McpConfigSchema,
+    etm: EtmConfigSchema,
     skills: z
       .object({
         allowBundled: z.array(z.string()).optional(),
