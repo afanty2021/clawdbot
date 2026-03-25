@@ -372,6 +372,32 @@ pnpm test:coverage
 
 ## 🔄 变更记录
 
+### 2026-03-26 12:00:00 - 上游同步合并 🚀
+
+- ✅ 从 upstream (openclaw/openclaw) 获取 20+ 个新提交
+- ✅ 成功合并 upstream/main（提交 fd934a566b）
+- 🔧 上游更新包括：
+  - CLI JSON schema 工具添加
+  - Planner-backed 测试运行器（catalog/executor/planner 模块）
+  - Feishu docx 沙箱安全修复（强制 localRoots）
+  - auth-profile 环境变量引用的 host-env 黑名单
+  - Talk-voice operator.admin 作用域强制
+  - LLM 超时触发上下文压缩
+  - 媒体解析层路径遍历防护
+  - 每模型冷却作用和阶梯退避
+  - 429 速率限制静默无回复修复
+  - iMessage 出站文本回复标签泄露修复
+  - Telegram target writeback 管理作用域网关
+  - Minimax 图像生成提供商
+  - OpenShell 镜像同步排除 hooks/
+- 📊 统计：224 个文件变更，11,209 行新增，3,107 行删除
+- 🎯 新建测试文件：
+  - src/agents/pi-embedded-runner/run.timeout-triggered-compaction.test.ts
+  - src/agents/pi-tools.sandbox-policy.test.ts
+  - src/agents/sandbox/tool-policy.test.ts
+  - src/gateway/server.send-telegram-target-writeback-scope.test.ts
+  - src/config/runtime-schema.test.ts
+
 ### 2026-03-25 12:00:00 - 上游同步合并与 ETM Plus 集成 🚀
 
 - ✅ 从 upstream (openclaw/openclaw) 获取 100+ 个新提交
