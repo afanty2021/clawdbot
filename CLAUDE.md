@@ -1,6 +1,6 @@
 # OpenClaw (Clawdbot) - AI 上下文索引
 
-> 更新时间：2026-03-21 00:00:10
+> 更新时间：2026-03-28 16:00:00
 
 ## 📊 文档覆盖率统计
 
@@ -371,6 +371,51 @@ pnpm test:coverage
 4. **配置目录**: `~/.config/openclaw/openclaw.json` (仅限 base_url)
 
 ## 🔄 变更记录
+
+### 2026-03-28 16:00:00 - 上游大规模同步合并 🚀
+
+- ✅ 从 upstream (openclaw/openclaw) 获取 1075 个新提交
+- ✅ 成功合并 upstream/main（提交 4dfd2cd60c）
+- 🔧 上游主要更新：
+  - **新功能**：
+    - Tavily API 请求支持自定义 extra headers (#55335)
+    - OpenClaw channel MCP bridge 新增
+    - Anthropic Claude CLI 迁移工具
+    - CLI 推理后端插件化 (pluginize cli inference backends)
+    - Microsoft Foundry 提供商（Entra ID 认证）(#51973)
+    - 视频生成核心基础设施和图像生成参数扩展 (#53681)
+  - **架构重构**：
+    - 测试基础设施重构：从 infra runtime 迁移到 SDK seams
+    - 插件系统重构：provider policy hooks 迁移到插件模块
+    - 渠道运行时路由重构：Discord/Slack 通过 outbound runtime 路由
+    - 搜索提供商插件化：通过 BUNDLED_WEB_SEARCH_PROVIDER_PLUGIN_IDS 自动发现
+    - 运行时 SDK seams 扩展（approval、diagnostic、error、host、collection、retry、fetch）
+    - XAI 提供商拆分（provider compat facades + bundled runtime）
+  - **Bug 修复**：
+    - 代码栅栏终止处理修复
+    - 缓冲回复 typing 标记完成
+    - bundled channel runtime TDZ 导入防护
+    - Matrix runtime deps for bundled installs
+    - 设备聊天默认隔离 (#53752)
+    - Pi embedded runner transport 类型修复
+    - Telegram media/typing/topic runtime 多项修复
+    - Android 语音静音自动发送修复
+    - Signal runtime 路径拒绝修复
+  - **CI/CD**：
+    - 测试去重和稳定化（大量 test 套件去重）
+    - 浏览器 bundled 集成测试稳定化
+    - 新增 vitest contracts/performance 配置
+    - Bun CI workflow 添加
+    - macOS release workflow 添加
+- 📊 统计：3554 个文件变更，196,425 行新增，90,128 行删除
+- 📝 冲突解决：
+  - .agents/skills/openclaw-parallels-smoke/SKILL.md: 接受上游
+  - extensions/browser/: 接受上游目录重命名（src/browser/ → extensions/browser/src/browser/）
+  - packages/memory-host-sdk/: 接受上游目录重命名（src/memory/ → packages/memory-host-sdk/src/host/）
+  - src/bundled-web-search-registry.ts: 接受上游删除（功能已插件化）
+  - src/config/legacy-web-search.ts: 接受上游（搜索提供商通过插件元数据自动发现）
+  - src/config/plugin-auto-enable.ts: 接受上游（provider 自动启用通过插件 manifest 实现）
+  - src/config/schema.base.generated.ts: 接受上游（自动生成的 schema）
 
 ### 2026-03-26 12:00:00 - 上游同步合并 🚀
 
