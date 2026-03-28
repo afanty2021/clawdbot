@@ -6,6 +6,7 @@ import {
   listChatChannels,
   normalizeChatChannelId,
 } from "../channels/registry.js";
+import { BUNDLED_AUTO_ENABLE_PROVIDER_PLUGIN_IDS } from "../plugins/bundled-capability-metadata.js";
 import {
   loadPluginManifestRegistry,
   type PluginManifestRegistry,
@@ -30,178 +31,20 @@ const EMPTY_PLUGIN_MANIFEST_REGISTRY: PluginManifestRegistry = {
   diagnostics: [],
 };
 
-const PROVIDER_PLUGIN_IDS: Array<{ pluginId: string; providerId: string }> = [
-  { pluginId: "google", providerId: "google-gemini-cli" },
-  { pluginId: "qwen-portal-auth", providerId: "qwen-portal" },
-  { pluginId: "copilot-proxy", providerId: "copilot-proxy" },
-  { pluginId: "minimax", providerId: "minimax-portal" },
-];
-
-const WEB_SEARCH_PROVIDER_PLUGIN_IDS: Array<{ pluginId: string; providerId: string }> = [
-  { pluginId: "serper", providerId: "serper" },
-  { pluginId: "tavily", providerId: "tavily" },
-  { pluginId: "brave", providerId: "brave" },
-  { pluginId: "perplexity", providerId: "perplexity" },
-  { pluginId: "grok", providerId: "grok" },
-  { pluginId: "gemini", providerId: "gemini" },
-  { pluginId: "kimi", providerId: "kimi" },
-];
-
 const ENV_CATALOG_PATHS = ["OPENCLAW_PLUGIN_CATALOG_PATHS", "OPENCLAW_MPM_CATALOG_PATHS"];
 
-function hasNonEmptyString(value: unknown): boolean {
-  return typeof value === "string" && value.trim().length > 0;
-}
-
-function accountsHaveKeys(value: unknown, keys: readonly string[]): boolean {
-  if (!isRecord(value)) {
-    return false;
-  }
-  for (const account of Object.values(value)) {
-    if (!isRecord(account)) {
-      continue;
-    }
-    for (const key of keys) {
-      if (hasNonEmptyString(account[key])) {
-        return true;
+function resolveAutoEnableProviderPluginIds(
+  registry: PluginManifestRegistry,
+): Readonly<Record<string, string>> {
+  const entries = new Map<string, string>(Object.entries(BUNDLED_AUTO_ENABLE_PROVIDER_PLUGIN_IDS));
+  for (const plugin of registry.plugins) {
+    for (const providerId of plugin.autoEnableWhenConfiguredProviders ?? []) {
+      if (!entries.has(providerId)) {
+        entries.set(providerId, plugin.id);
       }
     }
   }
-  return false;
-}
-
-function resolveChannelConfig(
-  cfg: OpenClawConfig,
-  channelId: string,
-): Record<string, unknown> | null {
-  const channels = cfg.channels as Record<string, unknown> | undefined;
-  const entry = channels?.[channelId];
-  return isRecord(entry) ? entry : null;
-}
-
-type StructuredChannelConfigSpec = {
-  envAny?: readonly string[];
-  envAll?: readonly string[];
-  stringKeys?: readonly string[];
-  numberKeys?: readonly string[];
-  accountStringKeys?: readonly string[];
-};
-
-const STRUCTURED_CHANNEL_CONFIG_SPECS: Record<string, StructuredChannelConfigSpec> = {
-  telegram: {
-    envAny: ["TELEGRAM_BOT_TOKEN"],
-    stringKeys: ["botToken", "tokenFile"],
-    accountStringKeys: ["botToken", "tokenFile"],
-  },
-  discord: {
-    envAny: ["DISCORD_BOT_TOKEN"],
-    stringKeys: ["token"],
-    accountStringKeys: ["token"],
-  },
-  irc: {
-    envAll: ["IRC_HOST", "IRC_NICK"],
-    stringKeys: ["host", "nick"],
-    accountStringKeys: ["host", "nick"],
-  },
-  slack: {
-    envAny: ["SLACK_BOT_TOKEN", "SLACK_APP_TOKEN", "SLACK_USER_TOKEN"],
-    stringKeys: ["botToken", "appToken", "userToken"],
-    accountStringKeys: ["botToken", "appToken", "userToken"],
-  },
-  signal: {
-    stringKeys: ["account", "httpUrl", "httpHost", "cliPath"],
-    numberKeys: ["httpPort"],
-    accountStringKeys: ["account", "httpUrl", "httpHost", "cliPath"],
-  },
-  imessage: {
-    stringKeys: ["cliPath"],
-  },
-};
-
-function envHasAnyKeys(env: NodeJS.ProcessEnv, keys: readonly string[]): boolean {
-  for (const key of keys) {
-    if (hasNonEmptyString(env[key])) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function envHasAllKeys(env: NodeJS.ProcessEnv, keys: readonly string[]): boolean {
-  for (const key of keys) {
-    if (!hasNonEmptyString(env[key])) {
-      return false;
-    }
-  }
-  return keys.length > 0;
-}
-
-function hasAnyNumberKeys(entry: Record<string, unknown>, keys: readonly string[]): boolean {
-  for (const key of keys) {
-    if (typeof entry[key] === "number") {
-      return true;
-    }
-  }
-  return false;
-}
-
-function isStructuredChannelConfigured(
-  cfg: OpenClawConfig,
-  channelId: string,
-  env: NodeJS.ProcessEnv,
-  spec: StructuredChannelConfigSpec,
-): boolean {
-  if (spec.envAny && envHasAnyKeys(env, spec.envAny)) {
-    return true;
-  }
-  if (spec.envAll && envHasAllKeys(env, spec.envAll)) {
-    return true;
-  }
-  const entry = resolveChannelConfig(cfg, channelId);
-  if (!entry) {
-    return false;
-  }
-  if (spec.stringKeys && spec.stringKeys.some((key) => hasNonEmptyString(entry[key]))) {
-    return true;
-  }
-  if (spec.numberKeys && hasAnyNumberKeys(entry, spec.numberKeys)) {
-    return true;
-  }
-  if (spec.accountStringKeys && accountsHaveKeys(entry.accounts, spec.accountStringKeys)) {
-    return true;
-  }
-  return hasMeaningfulChannelConfig(entry);
-}
-
-function isWhatsAppConfigured(cfg: OpenClawConfig): boolean {
-  if (hasAnyWhatsAppAuth(cfg)) {
-    return true;
-  }
-  const entry = resolveChannelConfig(cfg, "whatsapp");
-  if (!entry) {
-    return false;
-  }
-  return hasMeaningfulChannelConfig(entry);
-}
-
-function isGenericChannelConfigured(cfg: OpenClawConfig, channelId: string): boolean {
-  const entry = resolveChannelConfig(cfg, channelId);
-  return hasMeaningfulChannelConfig(entry);
-}
-
-export function isChannelConfigured(
-  cfg: OpenClawConfig,
-  channelId: string,
-  env: NodeJS.ProcessEnv = process.env,
-): boolean {
-  if (channelId === "whatsapp") {
-    return isWhatsAppConfigured(cfg);
-  }
-  const spec = STRUCTURED_CHANNEL_CONFIG_SPECS[channelId];
-  if (spec) {
-    return isStructuredChannelConfigured(cfg, channelId, env, spec);
-  }
-  return isGenericChannelConfigured(cfg, channelId);
+  return Object.fromEntries(entries);
 }
 
 function collectModelRefs(cfg: OpenClawConfig): string[] {
@@ -292,19 +135,6 @@ function isProviderConfigured(cfg: OpenClawConfig, providerId: string): boolean 
   }
 
   return false;
-}
-
-function isWebSearchProviderConfigured(cfg: OpenClawConfig, providerId: string): boolean {
-  const tools = cfg.tools as Record<string, unknown> | undefined;
-  const web = tools?.web as Record<string, unknown> | undefined;
-  const search = web?.search as Record<string, unknown> | undefined;
-
-  if (!search) {
-    return false;
-  }
-
-  const configProvider = search.provider as string | undefined;
-  return configProvider?.toLowerCase() === providerId.toLowerCase();
 }
 
 function buildChannelToPluginIdMap(registry: PluginManifestRegistry): Map<string, string> {
@@ -466,20 +296,13 @@ function resolveConfiguredPlugins(
     }
   }
 
-  for (const mapping of PROVIDER_PLUGIN_IDS) {
-    if (isProviderConfigured(cfg, mapping.providerId)) {
+  for (const [providerId, pluginId] of Object.entries(
+    resolveAutoEnableProviderPluginIds(registry),
+  )) {
+    if (isProviderConfigured(cfg, providerId)) {
       changes.push({
-        pluginId: mapping.pluginId,
-        reason: `${mapping.providerId} auth configured`,
-      });
-    }
-  }
-
-  for (const mapping of WEB_SEARCH_PROVIDER_PLUGIN_IDS) {
-    if (isWebSearchProviderConfigured(cfg, mapping.providerId)) {
-      changes.push({
-        pluginId: mapping.pluginId,
-        reason: `web search provider ${mapping.providerId} configured`,
+        pluginId,
+        reason: `${providerId} auth configured`,
       });
     }
   }
@@ -528,9 +351,12 @@ function resolvePreferredOverIds(
   if (normalized) {
     return getChatChannelMeta(normalized).preferOver ?? [];
   }
-  const installedChannelMeta = registry.plugins.find(
-    (record) => record.id === pluginId,
-  )?.channelCatalogMeta;
+  const installedPlugin = registry.plugins.find((record) => record.id === pluginId);
+  const manifestChannelPreferOver = installedPlugin?.channelConfigs?.[pluginId]?.preferOver;
+  if (manifestChannelPreferOver?.length) {
+    return manifestChannelPreferOver;
+  }
+  const installedChannelMeta = installedPlugin?.channelCatalogMeta;
   if (installedChannelMeta?.preferOver?.length) {
     return installedChannelMeta.preferOver;
   }
