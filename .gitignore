@@ -82,6 +82,8 @@ apps/ios/*.mobileprovision
 # Local untracked files
 .local/
 docs/.local/
+docs/internal/
+tmp/
 IDENTITY.md
 USER.md
 .tgz
@@ -125,3 +127,9 @@ dist/protocol.schema.json
 
 # Workspace notes (local sync files)
 Macintosh HD:*
+
+# Deprecated changelog fragment workflow
+changelog/fragments/
+
+# Local scratch workspace
+.tmp/
