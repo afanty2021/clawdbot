@@ -80,9 +80,13 @@ import { loadNodes } from "./controllers/nodes.ts";
 import { loadPresence } from "./controllers/presence.ts";
 import { deleteSessionsAndRefresh, loadSessions, patchSession } from "./controllers/sessions.ts";
 import {
+  closeClawHubDetail,
+  installFromClawHub,
   installSkill,
+  loadClawHubDetail,
   loadSkills,
   saveSkillApiKey,
+  searchClawHub,
   updateSkillEdit,
   updateSkillEnabled,
 } from "./controllers/skills.ts";
@@ -138,6 +142,8 @@ const lazyLogs = createLazy(() => import("./views/logs.ts"));
 const lazyNodes = createLazy(() => import("./views/nodes.ts"));
 const lazySessions = createLazy(() => import("./views/sessions.ts"));
 const lazySkills = createLazy(() => import("./views/skills.ts"));
+
+let clawhubSearchTimer: ReturnType<typeof setTimeout> | null = null;
 
 function lazyRender<M>(getter: () => M | null, render: (mod: M) => unknown) {
   const mod = getter();
@@ -1345,6 +1351,16 @@ export function renderApp(state: AppViewState) {
                   messages: state.skillMessages,
                   busyKey: state.skillsBusyKey,
                   detailKey: state.skillsDetailKey,
+                  clawhubQuery: state.clawhubSearchQuery,
+                  clawhubResults: state.clawhubSearchResults,
+                  clawhubSearchLoading: state.clawhubSearchLoading,
+                  clawhubSearchError: state.clawhubSearchError,
+                  clawhubDetail: state.clawhubDetail,
+                  clawhubDetailSlug: state.clawhubDetailSlug,
+                  clawhubDetailLoading: state.clawhubDetailLoading,
+                  clawhubDetailError: state.clawhubDetailError,
+                  clawhubInstallSlug: state.clawhubInstallSlug,
+                  clawhubInstallMessage: state.clawhubInstallMessage,
                   onFilterChange: (next) => (state.skillsFilter = next),
                   onStatusFilterChange: (next) => (state.skillsStatusFilter = next),
                   onRefresh: () => loadSkills(state, { clearMessages: true }),
@@ -1355,6 +1371,17 @@ export function renderApp(state: AppViewState) {
                     installSkill(state, skillKey, name, installId),
                   onDetailOpen: (key) => (state.skillsDetailKey = key),
                   onDetailClose: () => (state.skillsDetailKey = null),
+                  onClawHubQueryChange: (query) => {
+                    state.clawhubSearchQuery = query;
+                    state.clawhubInstallMessage = null;
+                    if (clawhubSearchTimer) {
+                      clearTimeout(clawhubSearchTimer);
+                    }
+                    clawhubSearchTimer = setTimeout(() => searchClawHub(state, query), 300);
+                  },
+                  onClawHubDetailOpen: (slug) => loadClawHubDetail(state, slug),
+                  onClawHubDetailClose: () => closeClawHubDetail(state),
+                  onClawHubInstall: (slug) => installFromClawHub(state, slug),
                 }),
               )
             : nothing
@@ -1644,6 +1671,7 @@ export function renderApp(state: AppViewState) {
                 gatewayUrl: state.settings.gatewayUrl,
                 assistantName: state.assistantName,
                 configPath: state.configSnapshot?.path ?? null,
+                rawAvailable: typeof state.configSnapshot?.raw === "string",
                 excludeSections: [
                   ...COMMUNICATION_SECTION_KEYS,
                   ...AUTOMATION_SECTION_KEYS,
@@ -1716,6 +1744,7 @@ export function renderApp(state: AppViewState) {
                 gatewayUrl: state.settings.gatewayUrl,
                 assistantName: state.assistantName,
                 configPath: state.configSnapshot?.path ?? null,
+                rawAvailable: typeof state.configSnapshot?.raw === "string",
                 navRootLabel: "Communication",
                 includeSections: [...COMMUNICATION_SECTION_KEYS],
                 includeVirtualSections: false,
@@ -1782,6 +1811,7 @@ export function renderApp(state: AppViewState) {
                 gatewayUrl: state.settings.gatewayUrl,
                 assistantName: state.assistantName,
                 configPath: state.configSnapshot?.path ?? null,
+                rawAvailable: typeof state.configSnapshot?.raw === "string",
                 navRootLabel: "Appearance",
                 includeSections: [...APPEARANCE_SECTION_KEYS],
                 includeVirtualSections: true,
@@ -1848,6 +1878,7 @@ export function renderApp(state: AppViewState) {
                 gatewayUrl: state.settings.gatewayUrl,
                 assistantName: state.assistantName,
                 configPath: state.configSnapshot?.path ?? null,
+                rawAvailable: typeof state.configSnapshot?.raw === "string",
                 navRootLabel: "Automation",
                 includeSections: [...AUTOMATION_SECTION_KEYS],
                 includeVirtualSections: false,
@@ -1914,6 +1945,7 @@ export function renderApp(state: AppViewState) {
                 gatewayUrl: state.settings.gatewayUrl,
                 assistantName: state.assistantName,
                 configPath: state.configSnapshot?.path ?? null,
+                rawAvailable: typeof state.configSnapshot?.raw === "string",
                 navRootLabel: "Infrastructure",
                 includeSections: [...INFRASTRUCTURE_SECTION_KEYS],
                 includeVirtualSections: false,
@@ -1980,6 +2012,7 @@ export function renderApp(state: AppViewState) {
                 gatewayUrl: state.settings.gatewayUrl,
                 assistantName: state.assistantName,
                 configPath: state.configSnapshot?.path ?? null,
+                rawAvailable: typeof state.configSnapshot?.raw === "string",
                 navRootLabel: "AI & Agents",
                 includeSections: [...AI_AGENTS_SECTION_KEYS],
                 includeVirtualSections: false,

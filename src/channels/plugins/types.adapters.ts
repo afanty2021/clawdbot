@@ -9,6 +9,7 @@ import type {
   PluginApprovalRequest,
   PluginApprovalResolved,
 } from "../../infra/plugin-approvals.js";
+import type { OutboundMediaAccess } from "../../media/load-options.js";
 import type { PluginRuntime } from "../../plugins/runtime/types.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import type { ConfigWriteTarget } from "./config-writes.js";
@@ -119,6 +120,7 @@ export type ChannelConfigAdapter<ResolvedAccount> = {
     accountId?: string | null;
     allowFrom: Array<string | number>;
   }) => string[];
+  hasPersistedAuthState?: (params: { cfg: OpenClawConfig; env?: NodeJS.ProcessEnv }) => boolean;
   resolveDefaultTo?: (params: {
     cfg: OpenClawConfig;
     accountId?: string | null;
@@ -137,7 +139,9 @@ export type ChannelOutboundContext = {
   text: string;
   mediaUrl?: string;
   audioAsVoice?: boolean;
+  mediaAccess?: OutboundMediaAccess;
   mediaLocalRoots?: readonly string[];
+  mediaReadFile?: (filePath: string) => Promise<Buffer>;
   gifPlayback?: boolean;
   /** Send image as document to avoid Telegram compression. */
   forceDocument?: boolean;
@@ -412,6 +416,7 @@ export type ChannelAuthAdapter = {
     accountId?: string | null;
     action: "approve";
   }) => ChannelActionAvailabilityState;
+  resolveApproveCommandBehavior?: ChannelApprovalCapability["resolveApproveCommandBehavior"];
 };
 
 export type ChannelHeartbeatAdapter = {
@@ -509,9 +514,57 @@ export type ChannelApprovalDeliveryAdapter = {
   hasConfiguredDmRoute?: (params: { cfg: OpenClawConfig }) => boolean;
   shouldSuppressForwardingFallback?: (params: {
     cfg: OpenClawConfig;
+    approvalKind: ChannelApprovalKind;
     target: ChannelApprovalForwardTarget;
     request: ExecApprovalRequest;
   }) => boolean;
+};
+
+export type ChannelApprovalKind = "exec" | "plugin";
+
+export type ChannelApproveCommandBehavior =
+  | { kind: "allow" }
+  | { kind: "ignore" }
+  | { kind: "reply"; text: string };
+
+export type ChannelApprovalNativeSurface = "origin" | "approver-dm";
+
+export type ChannelApprovalNativeTarget = {
+  to: string;
+  threadId?: string | number | null;
+};
+
+export type ChannelApprovalNativeDeliveryPreference = ChannelApprovalNativeSurface | "both";
+
+export type ChannelApprovalNativeRequest = ExecApprovalRequest | PluginApprovalRequest;
+
+export type ChannelApprovalNativeDeliveryCapabilities = {
+  enabled: boolean;
+  preferredSurface: ChannelApprovalNativeDeliveryPreference;
+  supportsOriginSurface: boolean;
+  supportsApproverDmSurface: boolean;
+  notifyOriginWhenDmOnly?: boolean;
+};
+
+export type ChannelApprovalNativeAdapter = {
+  describeDeliveryCapabilities: (params: {
+    cfg: OpenClawConfig;
+    accountId?: string | null;
+    approvalKind: ChannelApprovalKind;
+    request: ChannelApprovalNativeRequest;
+  }) => ChannelApprovalNativeDeliveryCapabilities;
+  resolveOriginTarget?: (params: {
+    cfg: OpenClawConfig;
+    accountId?: string | null;
+    approvalKind: ChannelApprovalKind;
+    request: ChannelApprovalNativeRequest;
+  }) => ChannelApprovalNativeTarget | null | Promise<ChannelApprovalNativeTarget | null>;
+  resolveApproverDmTargets?: (params: {
+    cfg: OpenClawConfig;
+    accountId?: string | null;
+    approvalKind: ChannelApprovalKind;
+    request: ChannelApprovalNativeRequest;
+  }) => ChannelApprovalNativeTarget[] | Promise<ChannelApprovalNativeTarget[]>;
 };
 
 export type ChannelApprovalRenderAdapter = {
@@ -543,9 +596,21 @@ export type ChannelApprovalRenderAdapter = {
   };
 };
 
+export type ChannelApprovalCapability = ChannelApprovalAdapter & {
+  authorizeActorAction?: ChannelAuthAdapter["authorizeActorAction"];
+  getActionAvailabilityState?: ChannelAuthAdapter["getActionAvailabilityState"];
+  resolveApproveCommandBehavior?: (params: {
+    cfg: OpenClawConfig;
+    accountId?: string | null;
+    senderId?: string | null;
+    approvalKind: ChannelApprovalKind;
+  }) => ChannelApproveCommandBehavior | undefined;
+};
+
 export type ChannelApprovalAdapter = {
   delivery?: ChannelApprovalDeliveryAdapter;
   render?: ChannelApprovalRenderAdapter;
+  native?: ChannelApprovalNativeAdapter;
 };
 
 export type ChannelAllowlistAdapter = {

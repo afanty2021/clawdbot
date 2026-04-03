@@ -1,12 +1,21 @@
+import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
 import {
   buildDmGroupAccountAllowlistAdapter,
   createNestedAllowlistOverrideResolver,
 } from "openclaw/plugin-sdk/allowlist-config-edit";
-import { createApproverRestrictedNativeApprovalAdapter } from "openclaw/plugin-sdk/approval-runtime";
+import type { ChannelMessageActionAdapter } from "openclaw/plugin-sdk/channel-contract";
 import { createPairingPrefixStripper } from "openclaw/plugin-sdk/channel-pairing";
 import { createAllowlistProviderRouteAllowlistWarningCollector } from "openclaw/plugin-sdk/channel-policy";
 import { attachChannelToResult } from "openclaw/plugin-sdk/channel-send-result";
+import {
+  PAIRING_APPROVED_MESSAGE,
+  buildTokenChannelStatusSummary,
+  projectCredentialSnapshotFields,
+  resolveConfiguredFromCredentialStatuses,
+} from "openclaw/plugin-sdk/channel-status";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
 import { createChatChannelPlugin } from "openclaw/plugin-sdk/core";
+import { clearAccountEntryFields } from "openclaw/plugin-sdk/core";
 import { createChannelDirectoryAdapter } from "openclaw/plugin-sdk/directory-runtime";
 import {
   resolveOutboundSendDep,
@@ -24,24 +33,13 @@ import {
   createDefaultChannelRuntimeState,
 } from "openclaw/plugin-sdk/status-helpers";
 import {
-  buildTokenChannelStatusSummary,
-  clearAccountEntryFields,
-  DEFAULT_ACCOUNT_ID,
-  PAIRING_APPROVED_MESSAGE,
-  parseTelegramTopicConversation,
-  projectCredentialSnapshotFields,
-  resolveConfiguredFromCredentialStatuses,
-  type ChannelMessageActionAdapter,
-  type OpenClawConfig,
-} from "openclaw/plugin-sdk/telegram-core";
-import {
   listTelegramAccountIds,
   resolveTelegramAccount,
   type ResolvedTelegramAccount,
 } from "./accounts.js";
 import { resolveTelegramAutoThreadId } from "./action-threading.js";
 import { lookupTelegramChatId } from "./api-fetch.js";
-import { buildTelegramExecApprovalButtons } from "./approval-buttons.js";
+import { telegramApprovalCapability } from "./approval-native.js";
 import * as auditModule from "./audit.js";
 import { buildTelegramGroupPeerId } from "./bot/helpers.js";
 import { telegramMessageActions as telegramMessageActionsImpl } from "./channel-actions.js";
@@ -49,6 +47,7 @@ import {
   listTelegramDirectoryGroupsFromConfig,
   listTelegramDirectoryPeersFromConfig,
 } from "./directory-config.js";
+import { buildTelegramExecApprovalPendingPayload } from "./exec-approval-forwarding.js";
 import {
   getTelegramExecApprovalApprovers,
   isTelegramExecApprovalApprover,
@@ -71,6 +70,7 @@ import type { TelegramProbe } from "./probe.js";
 import { resolveTelegramReactionLevel } from "./reaction-level.js";
 import { getTelegramRuntime } from "./runtime.js";
 import { sendMessageTelegram, sendPollTelegram, sendTypingTelegram } from "./send.js";
+import { resolveTelegramSessionConversation } from "./session-conversation.js";
 import { telegramSetupAdapter } from "./setup-core.js";
 import { telegramSetupWizard } from "./setup-surface.js";
 import {
@@ -86,7 +86,9 @@ import {
   setTelegramThreadBindingIdleTimeoutBySessionKey,
   setTelegramThreadBindingMaxAgeBySessionKey,
 } from "./thread-bindings.js";
+import { buildTelegramThreadingToolContext } from "./threading-tool-context.js";
 import { resolveTelegramToken } from "./token.js";
+import { parseTelegramTopicConversation } from "./topic-conversation.js";
 
 type TelegramSendFn = typeof sendMessageTelegram;
 
@@ -422,25 +424,6 @@ async function resolveTelegramTargets(params: {
   );
 }
 
-const telegramNativeApprovalAdapter = createApproverRestrictedNativeApprovalAdapter({
-  channel: "telegram",
-  channelLabel: "Telegram",
-  listAccountIds: listTelegramAccountIds,
-  hasApprovers: ({ cfg, accountId }) =>
-    getTelegramExecApprovalApprovers({ cfg, accountId }).length > 0,
-  isExecAuthorizedSender: ({ cfg, accountId, senderId }) =>
-    isTelegramExecApprovalAuthorizedSender({ cfg, accountId, senderId }),
-  isPluginAuthorizedSender: ({ cfg, accountId, senderId }) =>
-    isTelegramExecApprovalApprover({ cfg, accountId, senderId }),
-  isNativeDeliveryEnabled: ({ cfg, accountId }) =>
-    isTelegramExecApprovalClientEnabled({ cfg, accountId }),
-  resolveNativeDeliveryMode: ({ cfg, accountId }) =>
-    resolveTelegramExecApprovalTarget({ cfg, accountId }),
-  requireMatchingTurnSourceChannel: true,
-  resolveSuppressionAccountId: ({ target, request }) =>
-    target.accountId?.trim() || request.request.turnSourceAccountId?.trim() || undefined,
-});
-
 const resolveTelegramAllowlistGroupOverrides = createNestedAllowlistOverrideResolver({
   resolveRecord: (account: ResolvedTelegramAccount) => account.config.groups,
   outerLabel: (groupId) => groupId,
@@ -548,6 +531,8 @@ export const telegramPlugin = createChatChannelPlugin({
     },
     messaging: {
       normalizeTarget: normalizeTelegramMessagingTarget,
+      resolveSessionConversation: ({ kind, rawId }) =>
+        resolveTelegramSessionConversation({ kind, rawId }),
       parseExplicitTarget: ({ raw }) => parseTelegramExplicitTarget(raw),
       inferTargetChatType: ({ to }) => parseTelegramExplicitTarget(to).chatType,
       formatTargetDisplay: ({ target, display, kind }) => {
@@ -592,9 +577,14 @@ export const telegramPlugin = createChatChannelPlugin({
         await deleteTelegramUpdateOffset({ accountId });
       },
     },
-    auth: telegramNativeApprovalAdapter.auth,
-    approvals: {
-      delivery: telegramNativeApprovalAdapter.delivery,
+    approvalCapability: {
+      ...telegramApprovalCapability,
+      render: {
+        exec: {
+          buildPendingPayload: ({ request, nowMs }) =>
+            buildTelegramExecApprovalPendingPayload({ request, nowMs }),
+        },
+      },
     },
     directory: createChannelDirectoryAdapter({
       listPeers: async (params) => listTelegramDirectoryPeersFromConfig(params),
@@ -833,8 +823,8 @@ export const telegramPlugin = createChatChannelPlugin({
   },
   threading: {
     topLevelReplyToMode: "telegram",
-    resolveAutoThreadId: ({ to, toolContext, replyToId }) =>
-      replyToId ? undefined : resolveTelegramAutoThreadId({ to, toolContext }),
+    buildToolContext: (params) => buildTelegramThreadingToolContext(params),
+    resolveAutoThreadId: ({ to, toolContext }) => resolveTelegramAutoThreadId({ to, toolContext }),
   },
   outbound: {
     base: {

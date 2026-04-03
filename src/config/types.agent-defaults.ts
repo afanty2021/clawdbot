@@ -118,6 +118,8 @@ export type CliBackendConfig = {
 };
 
 export type AgentDefaultsConfig = {
+  /** Global default provider params applied to all models before per-model and per-agent overrides. */
+  params?: Record<string, unknown>;
   /** Primary model and fallbacks (provider/model). Accepts string or {primary,fallbacks}. */
   model?: AgentModelConfig;
   /** Optional image-capable model and fallbacks (provider/model). Accepts string or {primary,fallbacks}. */
@@ -276,6 +278,8 @@ export type AgentDefaultsConfig = {
   maxConcurrent?: number;
   /** Sub-agent defaults (spawned via sessions_spawn). */
   subagents?: {
+    /** Default allowlist of target agent ids for sessions_spawn. Use "*" to allow any. */
+    allowAgents?: string[];
     /** Max concurrent sub-agent runs (global lane: "subagent"). Default: 1. */
     maxConcurrent?: number;
     /** Maximum depth allowed for sessions_spawn chains. Default behavior: 1 (no nested spawns). */
@@ -292,6 +296,8 @@ export type AgentDefaultsConfig = {
     runTimeoutSeconds?: number;
     /** Gateway timeout in ms for sub-agent announce delivery calls (default: 90000). */
     announceTimeoutMs?: number;
+    /** Require explicit agentId in sessions_spawn (no default same-as-caller). Default: false. */
+    requireAgentId?: boolean;
   };
   /** Optional sandbox settings for non-main sessions. */
   sandbox?: AgentSandboxConfig;
@@ -350,6 +356,11 @@ export type AgentCompactionConfig = {
    * Default: false (existing behavior preserved).
    */
   truncateAfterCompaction?: boolean;
+  /**
+   * Send a "🧹 Compacting context..." notice to the user when compaction starts.
+   * Default: false (silent by default).
+   */
+  notifyUser?: boolean;
 };
 
 export type AgentCompactionMemoryFlushConfig = {

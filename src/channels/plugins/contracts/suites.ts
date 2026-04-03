@@ -1,6 +1,5 @@
 import { expect, it, vi, type Mock } from "vitest";
 import { slackOutbound } from "../../../../test/channel-outbounds.js";
-import type { MsgContext } from "../../../auto-reply/templating.js";
 import type { ReplyPayload } from "../../../auto-reply/types.js";
 import type { OpenClawConfig } from "../../../config/config.js";
 import type {
@@ -12,9 +11,6 @@ import type {
   SessionBindingRecord,
 } from "../../../infra/outbound/session-binding-service.js";
 import { createNonExitingRuntime } from "../../../runtime.js";
-import { normalizeChatType } from "../../chat-type.js";
-import { resolveConversationLabel } from "../../conversation-label.js";
-import { validateSenderIdentity } from "../../sender-identity.js";
 import type {
   ChannelAccountSnapshot,
   ChannelAccountState,
@@ -29,6 +25,11 @@ import type {
   ChannelMessageCapability,
   ChannelPlugin,
 } from "../types.js";
+import { primeChannelOutboundSendMock } from "./test-helpers.js";
+export {
+  expectChannelInboundContextContract,
+  primeChannelOutboundSendMock,
+} from "./test-helpers.js";
 
 function sortStrings(values: readonly string[]) {
   return [...values].toSorted((left, right) => left.localeCompare(right));
@@ -115,11 +116,19 @@ function expectFocusedBindingShape(binding: ChannelFocusedBindingContext) {
   expect(binding.labelNoun.trim()).not.toBe("");
 }
 
+type OutboundSendMock = Mock<(...args: unknown[]) => Promise<Record<string, unknown>>>;
+
+type SlackOutboundPayloadHarness = {
+  run: () => Promise<Record<string, unknown>>;
+  sendMock: OutboundSendMock;
+  to: string;
+};
+
 export function createSlackOutboundPayloadHarness(params: {
   payload: ReplyPayload;
   sendResults?: Array<{ messageId: string }>;
-}) {
-  const sendSlack = vi.fn();
+}): SlackOutboundPayloadHarness {
+  const sendSlack: OutboundSendMock = vi.fn();
   primeChannelOutboundSendMock(
     sendSlack,
     { messageId: "sl-1", channelId: "C12345", ts: "1234.5678" },
@@ -793,21 +802,6 @@ export function installChannelOutboundPayloadContractSuite(params: {
   });
 }
 
-export function primeChannelOutboundSendMock(
-  sendMock: Mock,
-  fallbackResult: Record<string, unknown>,
-  sendResults: SendResultLike[] = [],
-) {
-  sendMock.mockReset();
-  if (sendResults.length === 0) {
-    sendMock.mockResolvedValue(fallbackResult);
-    return;
-  }
-  for (const result of sendResults) {
-    sendMock.mockResolvedValueOnce(result);
-  }
-}
-
 type RuntimeGroupPolicyResolver = (
   params: ResolveProviderRuntimeGroupPolicyParams,
 ) => RuntimeGroupPolicyResolution;
@@ -843,18 +837,4 @@ export function installChannelRuntimeGroupPolicyFallbackSuite(params: {
     expect(resolved.groupPolicy).toBe("allowlist");
     expect(resolved.providerMissingFallbackApplied).toBe(true);
   });
-}
-
-export function expectChannelInboundContextContract(ctx: MsgContext) {
-  expect(validateSenderIdentity(ctx)).toEqual([]);
-
-  expect(ctx.Body).toBeTypeOf("string");
-  expect(ctx.BodyForAgent).toBeTypeOf("string");
-  expect(ctx.BodyForCommands).toBeTypeOf("string");
-
-  const chatType = normalizeChatType(ctx.ChatType);
-  if (chatType && chatType !== "direct") {
-    const label = ctx.ConversationLabel?.trim() || resolveConversationLabel(ctx);
-    expect(label).toBeTruthy();
-  }
 }

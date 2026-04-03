@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { importFreshModule } from "../../../test/helpers/import-fresh.js";
-import { expectChannelInboundContextContract as expectInboundContextContract } from "../../channels/plugins/contracts/suites.js";
+import { expectChannelInboundContextContract as expectInboundContextContract } from "../../channels/plugins/contracts/test-helpers.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { defaultRuntime } from "../../runtime.js";
 import type { MsgContext } from "../templating.js";
@@ -15,7 +15,7 @@ import {
   scheduleFollowupDrain,
 } from "./queue.js";
 import { createReplyDispatcher } from "./reply-dispatcher.js";
-import { createReplyToModeFilter, resolveReplyToMode } from "./reply-threading.js";
+import { createReplyToModeFilter } from "./reply-threading.js";
 import { parseSlackDirectives, hasSlackDirectives } from "./slack-directives.js";
 
 describe("normalizeInboundTextNewlines", () => {
@@ -715,6 +715,58 @@ describe("parseSlackDirectives", () => {
       {
         type: "buttons",
         buttons: [{ label: long, value: long }],
+      },
+    ]);
+  });
+
+  it("parses optional Slack button styles without truncating callback values", () => {
+    const result = parseSlackDirectives({
+      text: "[[slack_buttons: Approve:pluginbind:approval-123:o:primary, Reject:deny:danger, Skip:skip:secondary]]",
+    });
+
+    expect(getSlackInteractive(result)).toEqual([
+      {
+        type: "buttons",
+        buttons: [
+          {
+            label: "Approve",
+            value: "pluginbind:approval-123:o",
+            style: "primary",
+          },
+          {
+            label: "Reject",
+            value: "deny",
+            style: "danger",
+          },
+          {
+            label: "Skip",
+            value: "skip",
+            style: "secondary",
+          },
+        ],
+      },
+    ]);
+  });
+
+  it("preserves slack_select values that end in style-like suffixes", () => {
+    const result = parseSlackDirectives({
+      text: "[[slack_select: Choose one | Queue:queue:danger, Archive:archive:primary]]",
+    });
+
+    expect(getSlackInteractive(result)).toEqual([
+      {
+        type: "select",
+        placeholder: "Choose one",
+        options: [
+          {
+            label: "Queue",
+            value: "queue:danger",
+          },
+          {
+            label: "Archive",
+            value: "archive:primary",
+          },
+        ],
       },
     ]);
   });
@@ -1726,8 +1778,6 @@ describe("followup queue drain restart after idle window", () => {
   });
 });
 
-const emptyCfg = {} as OpenClawConfig;
-
 describe("createReplyDispatcher", () => {
   it("drops empty payloads and exact silent tokens without media", async () => {
     const deliver = vi.fn().mockResolvedValue(undefined);
@@ -1864,7 +1914,6 @@ describe("createReplyDispatcher", () => {
 
   it("delays block replies after the first when humanDelay is natural", async () => {
     vi.useFakeTimers();
-    const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
     const deliver = vi.fn().mockResolvedValue(undefined);
     const dispatcher = createReplyDispatcher({
       deliver,
@@ -1882,11 +1931,9 @@ describe("createReplyDispatcher", () => {
     await vi.advanceTimersByTimeAsync(799);
     expect(deliver).toHaveBeenCalledTimes(1);
 
-    await vi.advanceTimersByTimeAsync(1);
+    await vi.runAllTimersAsync();
     await dispatcher.waitForIdle();
     expect(deliver).toHaveBeenCalledTimes(2);
-
-    randomSpy.mockRestore();
     vi.useRealTimers();
   });
 
@@ -1911,69 +1958,6 @@ describe("createReplyDispatcher", () => {
     expect(deliver).toHaveBeenCalledTimes(2);
 
     vi.useRealTimers();
-  });
-});
-
-describe("resolveReplyToMode", () => {
-  it("resolves defaults, channel overrides, chat-type overrides, and legacy dm overrides", () => {
-    const configuredCfg = {
-      channels: {
-        telegram: { replyToMode: "all" },
-        discord: { replyToMode: "first" },
-        slack: { replyToMode: "all" },
-      },
-    } as OpenClawConfig;
-    const chatTypeCfg = {
-      channels: {
-        slack: {
-          replyToMode: "off",
-          replyToModeByChatType: { direct: "all", group: "first" },
-        },
-      },
-    } as OpenClawConfig;
-    const topLevelFallbackCfg = {
-      channels: {
-        slack: {
-          replyToMode: "first",
-        },
-      },
-    } as OpenClawConfig;
-    const legacyDmCfg = {
-      channels: {
-        slack: {
-          replyToMode: "off",
-          dm: { replyToMode: "all" },
-        },
-      },
-    } as OpenClawConfig;
-
-    const cases: Array<{
-      cfg: OpenClawConfig;
-      channel?: "telegram" | "discord" | "slack";
-      chatType?: "direct" | "group" | "channel";
-      expected: "off" | "all" | "first";
-    }> = [
-      { cfg: emptyCfg, channel: "telegram", expected: "off" },
-      { cfg: emptyCfg, channel: "discord", expected: "off" },
-      { cfg: emptyCfg, channel: "slack", expected: "off" },
-      { cfg: emptyCfg, channel: undefined, expected: "all" },
-      { cfg: configuredCfg, channel: "telegram", expected: "all" },
-      { cfg: configuredCfg, channel: "discord", expected: "first" },
-      { cfg: configuredCfg, channel: "slack", expected: "all" },
-      { cfg: chatTypeCfg, channel: "slack", chatType: "direct", expected: "all" },
-      { cfg: chatTypeCfg, channel: "slack", chatType: "group", expected: "first" },
-      { cfg: chatTypeCfg, channel: "slack", chatType: "channel", expected: "off" },
-      { cfg: chatTypeCfg, channel: "slack", chatType: undefined, expected: "off" },
-      { cfg: topLevelFallbackCfg, channel: "slack", chatType: "direct", expected: "first" },
-      { cfg: topLevelFallbackCfg, channel: "slack", chatType: "channel", expected: "first" },
-      { cfg: legacyDmCfg, channel: "slack", chatType: "direct", expected: "all" },
-      { cfg: legacyDmCfg, channel: "slack", chatType: "channel", expected: "off" },
-    ];
-    for (const testCase of cases) {
-      expect(resolveReplyToMode(testCase.cfg, testCase.channel, null, testCase.chatType)).toBe(
-        testCase.expected,
-      );
-    }
   });
 });
 

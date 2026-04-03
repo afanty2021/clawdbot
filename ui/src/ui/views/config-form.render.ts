@@ -8,6 +8,7 @@ export type ConfigFormProps = {
   schema: JsonSchema | null;
   uiHints: ConfigUiHints;
   value: Record<string, unknown> | null;
+  rawAvailable?: boolean;
   disabled?: boolean;
   unsupportedPaths?: string[];
   searchQuery?: string;
@@ -462,6 +463,7 @@ export function renderConfigForm(props: ConfigFormProps) {
           value: params.nodeValue,
           path: params.path,
           hints: props.uiHints,
+          rawAvailable: props.rawAvailable ?? true,
           unsupported,
           disabled: props.disabled ?? false,
           showLabel: false,
