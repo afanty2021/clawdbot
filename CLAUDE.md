@@ -1,6 +1,6 @@
 # OpenClaw (Clawdbot) - AI 上下文索引
 
-> 更新时间：2026-03-28 16:00:00
+> 更新时间：2026-04-08 18:00:00
 
 ## 📊 文档覆盖率统计
 
@@ -371,6 +371,37 @@ pnpm test:coverage
 4. **配置目录**: `~/.config/openclaw/openclaw.json` (仅限 base_url)
 
 ## 🔄 变更记录
+
+### 2026-04-08 18:00:00 - 上游大规模同步合并（v2026.4.5）🚀
+
+- ✅ 从 upstream (openclaw/openclaw) 获取 **3,834** 个新提交
+- ✅ 成功完成 merge 合并（提交 30772ef7b2）
+- ✅ 版本更新: v2026.3.28 → **v2026.4.5**
+- ✅ 解决 **27** 个合并冲突（全部接受上游版本）
+- ✅ 修复 **10** 个 ESLint 错误（toSorted 比较函数、未使用变量和导入）
+- ✅ 新增 **4** 个 .agents 技能文件（parallels-smoke、qa-testing、security-triage）
+- 📊 文件变更统计：
+  - 7,807 个文件变更
+  - 451,439 行新增
+  - 381,258 行删除
+- 🔧 主要上游更新：
+  - **大规模代码去重重构**：去除模块间重复代码
+  - **测试基础设施优化**：测试加速和覆盖率改进
+  - **CI/CD 流程改进**：GitHub Actions 工作流优化
+  - **新功能**：gh-read GitHub App helper
+  - **安全修复**：边界对齐和回归修复
+  - **测试套件重构**：从 infra runtime 迁移到 SDK seams
+  - **插件系统重构**：provider policy hooks 迁移到插件模块
+  - **渠道运行时路由重构**：Discord/Slack 通过 outbound runtime 路由
+  - **搜索提供商插件化**：通过 BUNDLED_WEB_SEARCH_PROVIDER_PLUGIN_IDS 自动发现
+  - **运行时 SDK seams 扩展**：approval、diagnostic、error、host、collection、retry、fetch
+  - **XAI 提供商拆分**：provider compat facades + bundled runtime
+- 📝 新增 .agents 技能：
+  - `openclaw-parallels-smoke` - 并行烟雾测试
+  - `openclaw-qa-testing` - QA 测试套件
+  - `security-triage` - 安全分类技能
+- 🔗 Git 同步：合并 upstream/main (6bd480ea1f) 到本地
+- 📈 保留本地 Serper/Tavily 搜索扩展
 
 ### 2026-03-28 16:00:00 - 上游大规模同步合并 🚀
 
