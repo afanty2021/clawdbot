@@ -1,5 +1,10 @@
 import { html, nothing, type TemplateResult } from "lit";
+import { formatUnknownText } from "../format.ts";
 import { icons as sharedIcons } from "../icons.ts";
+import {
+  normalizeLowercaseStringOrEmpty,
+  normalizeOptionalLowercaseString,
+} from "../string-coerce.ts";
 import type { ConfigUiHints } from "../types.ts";
 import {
   defaultValue,
@@ -28,6 +33,27 @@ function jsonValue(value: unknown): string {
   } catch {
     return "";
   }
+}
+
+function formatComparablePrimitive(value: unknown): string | null {
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    typeof value === "bigint"
+  ) {
+    return String(value);
+  }
+  return null;
+}
+
+function matchesComparablePrimitiveValue(left: unknown, right: unknown): boolean {
+  if (Object.is(left, right)) {
+    return true;
+  }
+  const leftComparable = formatComparablePrimitive(left);
+  const rightComparable = formatComparablePrimitive(right);
+  return leftComparable !== null && leftComparable === rightComparable;
 }
 
 // SVG Icons as template literals
@@ -198,7 +224,7 @@ export function parseConfigSearchQuery(query: string): ConfigSearchCriteria {
   const seen = new Set<string>();
   const raw = query.trim();
   const stripped = raw.replace(/(^|\s)tag:([^\s]+)/gi, (_, leading: string, token: string) => {
-    const normalized = token.trim().toLowerCase();
+    const normalized = normalizeLowercaseStringOrEmpty(token);
     if (normalized && !seen.has(normalized)) {
       seen.add(normalized);
       tags.push(normalized);
@@ -206,7 +232,7 @@ export function parseConfigSearchQuery(query: string): ConfigSearchCriteria {
     return leading;
   });
   return {
-    text: stripped.trim().toLowerCase(),
+    text: normalizeLowercaseStringOrEmpty(stripped),
     tags,
   };
 }
@@ -225,7 +251,7 @@ function normalizeTags(raw: unknown): string[] {
     if (!tag) {
       continue;
     }
-    const key = tag.toLowerCase();
+    const key = normalizeLowercaseStringOrEmpty(tag);
     if (seen.has(key)) {
       continue;
     }
@@ -257,7 +283,7 @@ function matchesText(text: string, candidates: Array<string | undefined>): boole
     return true;
   }
   for (const candidate of candidates) {
-    if (candidate && candidate.toLowerCase().includes(text)) {
+    if (normalizeOptionalLowercaseString(candidate)?.includes(text)) {
       return true;
     }
   }
@@ -268,7 +294,7 @@ function matchesTags(filterTags: string[], fieldTags: string[]): boolean {
   if (filterTags.length === 0) {
     return true;
   }
-  const normalized = new Set(fieldTags.map((tag) => tag.toLowerCase()));
+  const normalized = new Set(fieldTags.map((tag) => normalizeLowercaseStringOrEmpty(tag)));
   return filterTags.every((tag) => normalized.has(tag));
 }
 
@@ -477,16 +503,12 @@ export function renderNode(params: {
                 <button
                   type="button"
                   class="cfg-segmented__btn ${
-                    // oxlint-disable typescript/no-base-to-string
-                    lit === resolvedValue || String(lit) === String(resolvedValue) ? "active" : ""
+                    matchesComparablePrimitiveValue(lit, resolvedValue) ? "active" : ""
                   }"
                   ?disabled=${disabled}
                   @click=${() => onPatch(path, lit)}
                 >
-                  ${
-                    // oxlint-disable typescript/no-base-to-string
-                    String(lit)
-                  }
+                  ${formatUnknownText(lit)}
                 </button>
               `,
             )}
@@ -556,12 +578,12 @@ export function renderNode(params: {
                 <button
                   type="button"
                   class="cfg-segmented__btn ${
-                    opt === resolvedValue || String(opt) === String(resolvedValue) ? "active" : ""
+                    matchesComparablePrimitiveValue(opt, resolvedValue) ? "active" : ""
                   }"
                   ?disabled=${disabled}
                   @click=${() => onPatch(path, opt)}
                 >
-                  ${String(opt)}
+                  ${formatUnknownText(opt)}
                 </button>
               `,
             )}
@@ -667,8 +689,7 @@ function renderTextInput(params: {
         : "Structured value (SecretRef) - edit the config file directly"
       : REDACTED_PLACEHOLDER
     : (hint?.placeholder ??
-      // oxlint-disable typescript/no-base-to-string
-      (schema.default !== undefined ? `Default: ${String(schema.default)}` : ""));
+      (schema.default !== undefined ? `Default: ${formatUnknownText(schema.default)}` : ""));
   const displayValue = effectiveRedacted
     ? ""
     : isStructuredValue
@@ -685,7 +706,7 @@ function renderTextInput(params: {
           type=${effectiveInputType}
           class="cfg-input${effectiveRedacted ? " cfg-input--redacted" : ""}"
           placeholder=${placeholder}
-          .value=${displayValue == null ? "" : String(displayValue)}
+          .value=${formatUnknownText(displayValue)}
           ?disabled=${disabled}
           ?readonly=${effectiveRedacted}
           @click=${() => {
@@ -783,7 +804,7 @@ function renderNumberInput(params: {
         <input
           type="number"
           class="cfg-number__input"
-          .value=${displayValue == null ? "" : String(displayValue)}
+          .value=${formatUnknownText(displayValue)}
           ?disabled=${disabled}
           @input=${(e: Event) => {
             const raw = (e.target as HTMLInputElement).value;

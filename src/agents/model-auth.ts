@@ -12,6 +12,10 @@ import {
   shouldDeferProviderSyntheticProfileAuthWithPlugin,
 } from "../plugins/provider-runtime.js";
 import { resolveOwningPluginIdsForProvider } from "../plugins/providers.js";
+import {
+  normalizeLowercaseStringOrEmpty,
+  normalizeOptionalLowercaseString,
+} from "../shared/string-coerce.js";
 import { normalizeOptionalSecretInput } from "../utils/normalize-secret-input.js";
 import {
   type AuthProfileStore,
@@ -38,6 +42,7 @@ import { normalizeProviderId } from "./model-selection.js";
 export { ensureAuthProfileStore, resolveAuthProfileOrder } from "./auth-profiles.js";
 export { requireApiKey, resolveAwsSdkEnvVarName } from "./model-auth-runtime-shared.js";
 export type { ResolvedProviderAuth } from "./model-auth-runtime-shared.js";
+export type ProviderCredentialPrecedence = "profile-first" | "env-first";
 
 const log = createSubsystemLogger("model-auth");
 function resolveProviderConfig(
@@ -113,6 +118,18 @@ export function hasUsableCustomProviderApiKey(
   return Boolean(resolveUsableCustomProviderApiKey({ cfg, provider, env }));
 }
 
+export function shouldPreferExplicitConfigApiKeyAuth(
+  cfg: OpenClawConfig | undefined,
+  provider: string,
+): boolean {
+  const providerConfig = resolveProviderConfig(cfg, provider);
+  return (
+    resolveProviderAuthOverride(cfg, provider) === "api-key" &&
+    providerConfig !== undefined &&
+    hasExplicitProviderApiKeyConfig(providerConfig)
+  );
+}
+
 function resolveProviderAuthOverride(
   cfg: OpenClawConfig | undefined,
   provider: string,
@@ -127,7 +144,7 @@ function resolveProviderAuthOverride(
 
 function isLocalBaseUrl(baseUrl: string): boolean {
   try {
-    const host = new URL(baseUrl).hostname.toLowerCase();
+    const host = normalizeLowercaseStringOrEmpty(new URL(baseUrl).hostname);
     return (
       host === "localhost" ||
       host === "127.0.0.1" ||
@@ -335,6 +352,7 @@ export async function resolveApiKeyForProvider(params: {
   /** When true, treat profileId as a user-locked selection that must not be
    *  silently overridden by env/config credentials (e.g. ollama-local). */
   lockedProfile?: boolean;
+  credentialPrecedence?: ProviderCredentialPrecedence;
 }): Promise<ResolvedProviderAuth> {
   const { provider, cfg, profileId, preferredProfile } = params;
   const store = params.store ?? ensureAuthProfileStore(params.agentDir);
@@ -379,7 +397,32 @@ export async function resolveApiKeyForProvider(params: {
   if (authOverride === "aws-sdk") {
     return resolveAwsSdkAuthInfo();
   }
+  if (shouldPreferExplicitConfigApiKeyAuth(cfg, provider)) {
+    const customKey = resolveUsableCustomProviderApiKey({ cfg, provider });
+    if (customKey) {
+      return {
+        apiKey: customKey.apiKey,
+        source: customKey.source,
+        mode: "api-key",
+      };
+    }
+  }
 
+  if (params.credentialPrecedence === "env-first") {
+    const envResolved = resolveEnvApiKey(provider);
+    if (envResolved) {
+      const resolvedMode: ResolvedProviderAuth["mode"] = envResolved.source.includes("OAUTH_TOKEN")
+        ? "oauth"
+        : "api-key";
+      return {
+        apiKey: envResolved.apiKey,
+        source: envResolved.source,
+        mode: resolvedMode,
+      };
+    }
+  }
+
+  const providerConfig = resolveProviderConfig(cfg, provider);
   const order = resolveAuthProfileOrder({
     cfg,
     store,
@@ -455,7 +498,6 @@ export async function resolveApiKeyForProvider(params: {
     return resolveAwsSdkAuthInfo();
   }
 
-  const providerConfig = resolveProviderConfig(cfg, provider);
   const hasInlineConfiguredModels =
     Array.isArray(providerConfig?.models) && providerConfig.models.length > 0;
   const owningPluginIds = !hasInlineConfiguredModels
@@ -611,6 +653,7 @@ export async function getApiKeyForModel(params: {
   store?: AuthProfileStore;
   agentDir?: string;
   lockedProfile?: boolean;
+  credentialPrecedence?: ProviderCredentialPrecedence;
 }): Promise<ResolvedProviderAuth> {
   return resolveApiKeyForProvider({
     provider: params.model.provider,
@@ -620,6 +663,7 @@ export async function getApiKeyForModel(params: {
     store: params.store,
     agentDir: params.agentDir,
     lockedProfile: params.lockedProfile,
+    credentialPrecedence: params.credentialPrecedence,
   });
 }
 
@@ -677,7 +721,7 @@ export function applyAuthHeaderOverride<T extends Model<Api>>(
   const headers: Record<string, string> = {};
   if (model.headers) {
     for (const [key, value] of Object.entries(model.headers)) {
-      if (key.toLowerCase() !== "authorization") {
+      if (normalizeOptionalLowercaseString(key) !== "authorization") {
         headers[key] = value;
       }
     }

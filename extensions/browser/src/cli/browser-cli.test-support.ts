@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import type { GatewayRpcOpts } from "openclaw/plugin-sdk/browser-support";
+import type { GatewayRpcOpts } from "openclaw/plugin-sdk/browser-node-runtime";
 import { createCliRuntimeCapture } from "../../test-support.js";
 import type { CliRuntimeCapture } from "../../test-support.js";
 
@@ -21,7 +21,7 @@ export function createBrowserProgram(params?: { withGatewayUrl?: boolean }): {
   if (params?.withGatewayUrl) {
     browser.option("--url <url>", "Gateway WebSocket URL");
   }
-  const parentOpts = (cmd: Command) => cmd.parent?.opts?.() as BrowserParentOpts;
+  const parentOpts = (cmd: Command) => cmd.parent?.opts?.();
   return { program, browser, parentOpts };
 }
 

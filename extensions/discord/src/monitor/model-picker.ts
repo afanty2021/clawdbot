@@ -11,9 +11,9 @@ import {
 } from "@buape/carbon";
 import type { APISelectMenuOption } from "discord-api-types/v10";
 import { ButtonStyle } from "discord-api-types/v10";
-import { normalizeProviderId } from "openclaw/plugin-sdk/agent-runtime";
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-runtime";
 import type { ModelsProviderData } from "openclaw/plugin-sdk/models-provider-runtime";
+import { normalizeProviderId } from "openclaw/plugin-sdk/provider-model-shared";
 
 export const DISCORD_MODEL_PICKER_CUSTOM_ID_KEY = "mdlpk";
 export const DISCORD_CUSTOM_ID_MAX_CHARS = 100;
@@ -722,7 +722,7 @@ export function getDiscordModelPickerModelPage(params: {
     DISCORD_MODEL_PICKER_MODEL_PAGE_SIZE,
     DISCORD_MODEL_PICKER_MODEL_PAGE_SIZE,
   );
-  const models = [...modelSet].toSorted();
+  const models = [...modelSet].toSorted((a, b) => a.localeCompare(b));
   const page = paginateItems({
     items: models,
     page: normalizePage(params.page),
