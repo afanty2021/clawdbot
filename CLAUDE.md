@@ -1,6 +1,6 @@
 # OpenClaw (Clawdbot) - AI 上下文索引
 
-> 更新时间：2026-04-08 18:00:00
+> 更新时间：2026-04-08 20:00:00
 
 ## 📊 文档覆盖率统计
 
@@ -402,6 +402,44 @@ pnpm test:coverage
   - `security-triage` - 安全分类技能
 - 🔗 Git 同步：合并 upstream/main (6bd480ea1f) 到本地
 - 📈 保留本地 Serper/Tavily 搜索扩展
+
+### 2026-04-08 20:00:00 - 配置修复与 Wecom 插件验证 🔧
+
+- ✅ **修复 OpenClaw 配置验证错误**
+  - 问题：`plugin manifest not found: /Users/berton/Github/OpenClaw/extensions/openclaw.plugin.json`
+  - 解决：创建缺失的 `extensions/openclaw.plugin.json` 插件清单文件
+  - 添加必需的 `configSchema` 字段以满足验证要求
+- ✅ **Wecom 插件安装验证**
+  - 确认 `@wecom/wecom-openclaw-plugin@2026.3.25` 已安装
+  - 验证插件状态：**loaded** ✅
+  - 官方插件：腾讯企业微信团队维护
+- ✅ **功能验证**
+  - Gateway 恢复正常运行（pid 49427）
+  - 插件列表功能正常工作
+  - 16 个企业微信技能全部可用
+- 📦 **Wecom 插件技能清单**：
+  - `wecom-contact-lookup` - 通讯录成员查询
+  - `wecom-doc-manager` - 文档管理
+  - `wecom-edit-todo` - 待办事项编辑
+  - `wecom-get-todo-detail` - 待办详情查询
+  - `wecom-get-todo-list` - 待办列表查询
+  - `wecom-meeting-create` - 会议创建
+  - `wecom-meeting-manage` - 会议管理
+  - `wecom-meeting-query` - 会议查询
+  - `wecom-msg` - 消息系统
+  - `wecom-preflight` - 前置条件检查
+  - `wecom-schedule` - 日程管理
+  - `wecom-send-media` - 媒体发送
+  - `wecom-smartsheet-data` - 智能表格数据
+  - `wecom-smartsheet-schema` - 智能表格架构
+- 📊 **测试结果摘要**：
+  - Feishu 扩展：564/564 测试通过 ✅
+  - Wecom 插件：16 个技能全部加载 ✅
+  - Gateway：运行状态正常 ✅
+- 🔗 **Wecom 插件资源**：
+  - npm: `@wecom/wecom-openclaw-plugin`
+  - 仓库: [github.com/WecomTeam/wecom-openclaw-plugin](https://github.com/WecomTeam/wecom-openclaw-plugin)
+  - 文档: [企业微信接入指引](https://doc.weixin.qq.com/doc/w3_AFYA1wY6ACoCNRxfnyGRJQaSa6jjJ)
 
 ### 2026-03-28 16:00:00 - 上游大规模同步合并 🚀
 
