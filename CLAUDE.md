@@ -1,6 +1,6 @@
 # OpenClaw (Clawdbot) - AI 上下文索引
 
-> 更新时间：2026-04-08 20:00:00
+> 更新时间：2026-04-08 22:00:00
 
 ## 📊 文档覆盖率统计
 
@@ -372,6 +372,39 @@ pnpm test:coverage
 
 ## 🔄 变更记录
 
+### 2026-04-08 22:00:00 - 上游同步合并 (v2026.4.5 → v2026.4.8) 🚀
+
+- ✅ 从 upstream (openclaw/openclaw) 获取 **21** 个新提交
+- ✅ 成功完成 merge 合并（提交 afc40754d1）
+- ✅ 版本更新: v2026.4.5 → **v2026.4.8**
+- ✅ 解决 1 个合并冲突（ui/src/ui/app-render.ts，采用上游版本）
+- 🔧 主要上游更新：
+  - **新功能**：
+    - Memory Wiki 功能恢复（结构化声明/证据字段、编译摘要检索、矛盾聚类、新鲜度仪表板）
+    - CLI infer hub（提供商支持的推理工作流）
+    - 媒体生成自动回退（auth-backed image/music/video providers）
+    - Leaf project scheduler（可选的叶子项目调度器）
+    - gh-read GitHub App helper
+  - **Bug 修复**：
+    - Telegram setup package entry 修复
+    - Bundled channel secret sidecars 修复
+    - Z.AI endpoint 检测与 GLM-5.1 默认对齐
+    - Codex GPT-5.4 runtime metadata 优先
+    - Provider auth alias test 稳定化
+  - **架构重构**：
+    - 大规模代码去重重构
+    - 测试基础设施优化和加速
+    - CI/CD workflow 改进
+- 📊 文件变更统计：
+  - 512 个文件变更
+  - 6,400 行新增
+  - 2,964 行删除
+- 📝 新增文档文件：
+  - docs/cli/wiki.md - CLI wiki 命令文档
+  - docs/plugins/memory-wiki.md - Memory wiki 插件文档
+- 🔗 Git 同步：合并 upstream/main (5eab61b45d) 到本地
+- 📈 保留本地 Serper/Tavily 搜索扩展
+
 ### 2026-04-08 18:00:00 - 上游大规模同步合并（v2026.4.5）🚀
 
 - ✅ 从 upstream (openclaw/openclaw) 获取 **3,834** 个新提交
@@ -689,8 +722,9 @@ pnpm test:coverage
 - **总文件数**: ~5000+ 文件
 - **TypeScript 文件**: ~3200+
 - **测试文件**: ~400+
-- **文档文件**: ~200+
+- **文档文件**: ~500+ (包含新增的 memory-wiki 文档)
 - **配置文件**: ~100+
+- **CLAUDE.md 文件**: 76 个（100% 模块覆盖率）
 
 ### 模块覆盖
 
