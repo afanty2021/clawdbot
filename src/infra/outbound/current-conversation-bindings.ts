@@ -68,7 +68,9 @@ function loadBindingsIntoMemory(): void {
   }
   bindingsLoaded = true;
   bindingsByConversationKey.clear();
-  const parsed = loadJsonFile(resolveBindingsFilePath());
+  const parsed = loadJsonFile(resolveBindingsFilePath()) as
+    | PersistedCurrentConversationBindingsFile
+    | undefined;
   const bindings = parsed?.version === CURRENT_BINDINGS_FILE_VERSION ? parsed.bindings : [];
   for (const record of bindings ?? []) {
     if (!record?.bindingId || !record?.conversation?.conversationId || isBindingExpired(record)) {
