@@ -937,6 +937,9 @@ export async function textToSpeechTelephony(params: {
         continue;
       }
       const synthesizeTelephony = resolvedProvider.provider.synthesizeTelephony;
+      if (!synthesizeTelephony) {
+        continue;
+      }
       const synthesis = await synthesizeTelephony({
         text: params.text,
         cfg: params.cfg,

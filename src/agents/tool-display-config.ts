@@ -691,6 +691,11 @@ export const TOOL_DISPLAY_CONFIG: ToolDisplayConfig = {
       title: "TTS",
       detailKeys: ["text", "channel"],
     },
+    etm_api: {
+      emoji: "🏫",
+      title: "ETM API",
+      detailKeys: ["action", "params"],
+    },
   },
 };
 

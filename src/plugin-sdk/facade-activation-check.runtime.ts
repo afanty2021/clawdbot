@@ -209,7 +209,7 @@ function readBundledPluginManifestRecordFromDir(params: {
       enabledByDefault: raw.enabledByDefault === true,
       rootDir: path.join(params.pluginsRoot, params.resolvedDirName),
       channels: Array.isArray(raw.channels)
-        ? raw.channels.filter((entry): entry is string => typeof entry === "string")
+        ? raw.channels.filter((entry: unknown): entry is string => typeof entry === "string")
         : [],
     };
   } catch {

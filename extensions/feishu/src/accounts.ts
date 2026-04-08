@@ -265,7 +265,7 @@ function buildResolvedFeishuAccount(params: {
   const enabled = baseEnabled && accountEnabled;
   const baseCreds = resolveFeishuBaseCredentials(merged, params.baseMode);
   const eventSecrets = resolveFeishuEventSecrets(merged, params.eventSecretMode);
-  const accountName = merged.name;
+  const accountName = (merged as FeishuConfig & { name?: string }).name;
 
   return {
     accountId,

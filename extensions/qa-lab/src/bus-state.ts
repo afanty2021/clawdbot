@@ -30,8 +30,6 @@ import type {
 const DEFAULT_BOT_ID = "openclaw";
 const DEFAULT_BOT_NAME = "OpenClaw QA";
 
-type QaBusEventSeed = Omit<Extract<QaBusEvent, { kind: "inbound-message" }>, "cursor">;
-
 export function createQaBusState() {
   const conversations = new Map<string, QaBusConversation>();
   const threads = new Map<string, QaBusThread>();
@@ -48,7 +46,12 @@ export function createQaBusState() {
     }),
   );
 
-  const pushEvent = (event: QaBusEventSeed | ((cursor: number) => QaBusEventSeed)): QaBusEvent => {
+  const pushEvent = (
+    event:
+      | QaBusEvent
+      | Omit<QaBusEvent, "cursor">
+      | ((cursor: number) => QaBusEvent | Omit<QaBusEvent, "cursor">),
+  ): QaBusEvent => {
     cursor += 1;
     const next = typeof event === "function" ? event(cursor) : event;
     const finalized = { cursor, ...next } as QaBusEvent;
