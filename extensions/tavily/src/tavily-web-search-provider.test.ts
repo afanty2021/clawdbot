@@ -2,7 +2,7 @@
  * Tavily Web Search Provider Tests
  */
 
-import { describe, it, expect, beforeEach } from "bun:test";
+import { describe, it, expect } from "bun:test";
 import { createTavilyWebSearchProvider } from "./tavily-web-search-provider.js";
 
 describe("Tavily Web Search Provider", () => {

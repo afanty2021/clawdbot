@@ -378,6 +378,7 @@ export const feishuSetupWizard: ChannelSetupWizard = {
     const currentMode =
       resolveFeishuAccount({ cfg: next, accountId: resolvedAccountId }).config.connectionMode ??
       "websocket";
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const connectionMode = (await prompter.select({
       message: "Feishu connection mode",
       options: [
@@ -462,6 +463,7 @@ export const feishuSetupWizard: ChannelSetupWizard = {
       domain: domain as "feishu" | "lark",
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const groupPolicy = (await prompter.select({
       message: "Group chat policy",
       options: [

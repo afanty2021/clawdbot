@@ -138,7 +138,9 @@ function resolveTavilyApiKey(searchConfig?: SearchConfigRecord): string | undefi
  * Normalize search depth parameter
  */
 function normalizeSearchDepth(value: unknown): TavilySearchDepth | undefined {
-  if (typeof value !== "string") return undefined;
+  if (typeof value !== "string") {
+    return undefined;
+  }
   const trimmed = value.trim().toLowerCase();
   if (trimmed === "basic" || trimmed === "advanced") {
     return trimmed;
@@ -150,9 +152,13 @@ function normalizeSearchDepth(value: unknown): TavilySearchDepth | undefined {
  * Normalize days parameter (1-365)
  */
 function normalizeDays(value: unknown): number | undefined {
-  if (typeof value !== "number" && typeof value !== "string") return undefined;
+  if (typeof value !== "number" && typeof value !== "string") {
+    return undefined;
+  }
   const num = typeof value === "string" ? parseInt(value, 10) : value;
-  if (isNaN(num) || num < 1 || num > 365) return undefined;
+  if (isNaN(num) || num < 1 || num > 365) {
+    return undefined;
+  }
   return num;
 }
 
@@ -160,7 +166,9 @@ function normalizeDays(value: unknown): number | undefined {
  * Normalize topic parameter
  */
 function normalizeTopic(value: unknown): "general" | "news" | undefined {
-  if (typeof value !== "string") return undefined;
+  if (typeof value !== "string") {
+    return undefined;
+  }
   const trimmed = value.trim().toLowerCase();
   if (trimmed === "general" || trimmed === "news") {
     return trimmed;
@@ -337,7 +345,7 @@ function createTavilyToolDefinition(
         return missingTavilyKeyPayload();
       }
 
-      const params = args as Record<string, unknown>;
+      const params = args;
       const query = readStringParam(params, "query", { required: true });
       const count =
         readNumberParam(params, "count", { integer: true }) ??
@@ -469,7 +477,7 @@ export function createTavilyWebSearchProvider(): WebSearchProviderPlugin {
 
       const mergedConfig: SearchConfigRecord | undefined = pluginConfig
         ? {
-            ...(searchConfig ?? {}),
+            ...searchConfig,
             ...(pluginConfig.apiKey === undefined || pluginConfig.apiKey === null
               ? {}
               : { apiKey: pluginConfig.apiKey as SearchConfigRecord["apiKey"] }),

@@ -63,6 +63,8 @@ export const DOUBAO_CODING_MODEL_CATALOG = [
 export type DoubaoCatalogEntry = (typeof DOUBAO_MODEL_CATALOG)[number];
 export type DoubaoCodingCatalogEntry = (typeof DOUBAO_CODING_MODEL_CATALOG)[number];
 
-export function buildDoubaoModelDefinition(entry: DoubaoCatalogEntry): ModelDefinitionConfig {
+export function buildDoubaoModelDefinition(
+  entry: DoubaoCatalogEntry | DoubaoCodingCatalogEntry,
+): ModelDefinitionConfig {
   return buildVolcModelDefinition(entry, DOUBAO_DEFAULT_COST);
 }

@@ -68,6 +68,7 @@ function loadBindingsIntoMemory(): void {
   }
   bindingsLoaded = true;
   bindingsByConversationKey.clear();
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
   const parsed = loadJsonFile(resolveBindingsFilePath()) as
     | PersistedCurrentConversationBindingsFile
     | undefined;

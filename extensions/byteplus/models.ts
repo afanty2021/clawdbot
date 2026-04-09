@@ -37,6 +37,8 @@ export const BYTEPLUS_CODING_MODEL_CATALOG = VOLC_SHARED_CODING_MODEL_CATALOG;
 export type BytePlusCatalogEntry = (typeof BYTEPLUS_MODEL_CATALOG)[number];
 export type BytePlusCodingCatalogEntry = (typeof BYTEPLUS_CODING_MODEL_CATALOG)[number];
 
-export function buildBytePlusModelDefinition(entry: BytePlusCatalogEntry): ModelDefinitionConfig {
+export function buildBytePlusModelDefinition(
+  entry: BytePlusCatalogEntry | BytePlusCodingCatalogEntry,
+): ModelDefinitionConfig {
   return buildVolcModelDefinition(entry, BYTEPLUS_DEFAULT_COST);
 }

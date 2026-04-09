@@ -158,7 +158,9 @@ function resolveSerperApiKey(searchConfig?: SearchConfigRecord): string | undefi
  * Normalize search type parameter
  */
 function normalizeSearchType(value: unknown): SerperType | undefined {
-  if (typeof value !== "string") return undefined;
+  if (typeof value !== "string") {
+    return undefined;
+  }
   const trimmed = value.trim().toLowerCase();
   const validTypes: SerperType[] = ["search", "images", "videos", "places", "shopping", "news"];
   if (validTypes.includes(trimmed as SerperType)) {
@@ -324,7 +326,7 @@ function createSerperToolDefinition(
         return missingSerperKeyPayload();
       }
 
-      const params = args as Record<string, unknown>;
+      const params = args;
       const query = readStringParam(params, "query", { required: true });
       const count =
         readNumberParam(params, "count", { integer: true }) ??
@@ -466,7 +468,7 @@ export function createSerperWebSearchProvider(): WebSearchProviderPlugin {
 
       const mergedConfig: SearchConfigRecord | undefined = pluginConfig
         ? {
-            ...(searchConfig ?? {}),
+            ...searchConfig,
             ...(pluginConfig.apiKey === undefined || pluginConfig.apiKey === null
               ? {}
               : { apiKey: pluginConfig.apiKey as SearchConfigRecord["apiKey"] }),
