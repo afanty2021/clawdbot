@@ -202,9 +202,9 @@ describe("config io write", () => {
           cliBackends: [],
           skills: [],
           hooks: [],
-          rootDir: "/fake/path",
-          source: "bundled",
-          manifestPath: "/fake/path/openclaw.plugin.json",
+          rootDir: "/tmp/openclaw-test-required-plugin",
+          source: "/tmp/openclaw-test-required-plugin/index.ts",
+          manifestPath: "/tmp/openclaw-test-required-plugin/openclaw.plugin.json",
           configSchema: {
             type: "object",
             properties: {
