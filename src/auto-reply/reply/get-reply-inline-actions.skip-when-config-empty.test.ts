@@ -216,8 +216,47 @@ describe("handleInlineActions", () => {
 
     expect(result).toEqual({ kind: "reply", reply: undefined });
     expect(buildStatusReplyMock).toHaveBeenCalledTimes(1);
+    expect(buildStatusReplyMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        storePath: undefined,
+      }),
+    );
     expect(handleCommandsMock).not.toHaveBeenCalled();
     expect(typing.cleanup).toHaveBeenCalled();
+  });
+
+  it("preserves storePath when routing inline status through the shared status builder", async () => {
+    const typing = createTypingController();
+    const ctx = buildTestCtx({
+      Body: "/status",
+      CommandBody: "/status",
+    });
+
+    const result = await handleInlineActions(
+      createHandleInlineActionsInput({
+        ctx,
+        typing,
+        cleanedBody: stripInlineStatus("/status").cleaned,
+        command: {
+          isAuthorizedSender: true,
+          rawBodyNormalized: "/status",
+          commandBodyNormalized: "/status",
+        },
+        overrides: {
+          allowTextCommands: true,
+          inlineStatusRequested: true,
+          storePath: "/tmp/inline-status-store.json",
+        },
+      }),
+    );
+
+    expect(result).toEqual({ kind: "reply", reply: undefined });
+    expect(buildStatusReplyMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        storePath: "/tmp/inline-status-store.json",
+      }),
+    );
+    expect(handleCommandsMock).not.toHaveBeenCalled();
   });
 
   it("does not continue into the agent after a mention-wrapped inline status-only turn", async () => {
@@ -432,6 +471,64 @@ describe("handleInlineActions", () => {
     expect(createOpenClawToolsMock).toHaveBeenCalledWith(
       expect.objectContaining({
         requesterAgentIdOverride: "named-worker",
+      }),
+    );
+    expect(toolExecute).toHaveBeenCalled();
+  });
+
+  it("passes senderIsOwner into inline tool runtimes before owner-only filtering", async () => {
+    const typing = createTypingController();
+    const toolExecute = vi.fn(async () => ({ text: "updated" }));
+    createOpenClawToolsMock.mockReturnValue([
+      {
+        name: "message",
+        execute: toolExecute,
+      },
+    ]);
+
+    const ctx = buildTestCtx({
+      Body: "/set_profile display name",
+      CommandBody: "/set_profile display name",
+    });
+    const skillCommands: SkillCommandSpec[] = [
+      {
+        name: "set_profile",
+        skillName: "matrix-profile",
+        description: "Set Matrix profile",
+        dispatch: {
+          kind: "tool",
+          toolName: "message",
+          argMode: "raw",
+        },
+        sourceFilePath: "/tmp/plugin/commands/set-profile.md",
+      },
+    ];
+
+    const result = await handleInlineActions(
+      createHandleInlineActionsInput({
+        ctx,
+        typing,
+        cleanedBody: "/set_profile display name",
+        command: {
+          isAuthorizedSender: true,
+          senderId: "sender-1",
+          senderIsOwner: true,
+          abortKey: "sender-1",
+          rawBodyNormalized: "/set_profile display name",
+          commandBodyNormalized: "/set_profile display name",
+        },
+        overrides: {
+          cfg: { commands: { text: true } },
+          allowTextCommands: true,
+          skillCommands,
+        },
+      }),
+    );
+
+    expect(result).toEqual({ kind: "reply", reply: { text: "✅ Done." } });
+    expect(createOpenClawToolsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        senderIsOwner: true,
       }),
     );
     expect(toolExecute).toHaveBeenCalled();

@@ -6,6 +6,8 @@ import { buildFileInfoCard, parseFileConsentInvoke, uploadToConsentUrl } from ".
 import { extractMSTeamsConversationMessageId, normalizeMSTeamsConversationId } from "./inbound.js";
 import { resolveMSTeamsSenderAccess } from "./monitor-handler/access.js";
 import { createMSTeamsMessageHandler } from "./monitor-handler/message-handler.js";
+export type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
+import type { MSTeamsAccessTokenProvider } from "./attachments/types.js";
 import type { MSTeamsMonitorLogger } from "./monitor-types.js";
 import { getPendingUpload, removePendingUpload } from "./pending-uploads.js";
 import { withRevokedProxyFallback } from "./revoked-context.js";
@@ -20,10 +22,6 @@ import {
 import { buildGroupWelcomeText, buildWelcomeCard } from "./welcome-card.js";
 export type { MSTeamsMessageHandlerDeps } from "./monitor-handler.types.js";
 import type { MSTeamsMessageHandlerDeps } from "./monitor-handler.types.js";
-
-export type MSTeamsAccessTokenProvider = {
-  getAccessToken: (scope: string) => Promise<string>;
-};
 
 export type MSTeamsActivityHandler = {
   onMessage: (
@@ -166,10 +164,31 @@ async function handleFileConsentInvoke(
           fileType: consentResponse.uploadInfo.fileType,
         });
 
-        await context.sendActivity({
-          type: "message",
-          attachments: [fileInfoCard],
-        });
+        // Only send a new file info message if we can't replace the consent card in-place
+        if (!pendingFile.consentCardActivityId) {
+          await context.sendActivity({
+            type: "message",
+            attachments: [fileInfoCard],
+          });
+        }
+
+        // Replace the original FileConsentCard with the file info card so the
+        // consent prompt no longer shows as pending in the chat
+        if (pendingFile.consentCardActivityId) {
+          try {
+            await context.updateActivity({
+              id: pendingFile.consentCardActivityId,
+              type: "message",
+              attachments: [fileInfoCard],
+            });
+          } catch {
+            // Non-fatal fallback: if update fails, send as new message
+            await context.sendActivity({
+              type: "message",
+              attachments: [fileInfoCard],
+            });
+          }
+        }
 
         log.info("file upload complete", {
           uploadId,
