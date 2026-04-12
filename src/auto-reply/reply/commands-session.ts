@@ -7,7 +7,7 @@ import {
 import { getChannelPlugin, normalizeChannelId } from "../../channels/plugins/index.js";
 import { formatThreadBindingDurationLabel } from "../../channels/thread-bindings-messages.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
-import { isRestartEnabled } from "../../config/commands.js";
+import { isRestartEnabled } from "../../config/commands.flags.js";
 import { logVerbose } from "../../globals.js";
 import { getSessionBindingService } from "../../infra/outbound/session-binding-service.js";
 import type { SessionBindingRecord } from "../../infra/outbound/session-binding-service.js";
@@ -314,9 +314,8 @@ export const handleUsageCommand: CommandHandler = async (params, allowTextComman
     };
   }
 
-  const currentRaw =
-    params.sessionEntry?.responseUsage ??
-    (params.sessionKey ? params.sessionStore?.[params.sessionKey]?.responseUsage : undefined);
+  const targetSessionEntry = params.sessionStore?.[params.sessionKey] ?? params.sessionEntry;
+  const currentRaw = targetSessionEntry?.responseUsage;
   const current = resolveResponseUsageMode(currentRaw);
   const next = requested ?? (current === "off" ? "tokens" : current === "tokens" ? "full" : "off");
 
@@ -355,6 +354,7 @@ export const handleFastCommand: CommandHandler = async (params, allowTextCommand
   const rawArgs = normalized === "/fast" ? "" : normalized.slice("/fast".length).trim();
   const rawMode = normalizeLowercaseStringOrEmpty(rawArgs);
   if (!rawMode || rawMode === "status") {
+    const targetSessionEntry = params.sessionStore?.[params.sessionKey] ?? params.sessionEntry;
     const sessionAgentId = params.sessionKey
       ? resolveSessionAgentId({ sessionKey: params.sessionKey, config: params.cfg })
       : params.agentId;
@@ -363,7 +363,7 @@ export const handleFastCommand: CommandHandler = async (params, allowTextCommand
       provider: params.provider,
       model: params.model,
       agentId: sessionAgentId,
-      sessionEntry: params.sessionEntry,
+      sessionEntry: targetSessionEntry,
     });
     const suffix =
       state.source === "agent"
