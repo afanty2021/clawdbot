@@ -476,7 +476,7 @@ export function createEtmApiTool(config?: OpenClawConfig): AnyAgentTool {
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        logError(`[ETM API] ${String(action)} 失败: ${errorMessage}`);
+        logError(`[ETM API] ${action} 失败: ${errorMessage}`);
         return jsonResult({
           success: false,
           message: `ETM API 调用失败: ${errorMessage}`,

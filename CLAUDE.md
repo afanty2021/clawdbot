@@ -1,6 +1,6 @@
 # OpenClaw (Clawdbot) - AI 上下文索引
 
-> 更新时间：2026-04-08 22:00:00
+> 更新时间：2026-04-12 09:15:00
 
 ## 📊 文档覆盖率统计
 
@@ -371,6 +371,40 @@ pnpm test:coverage
 4. **配置目录**: `~/.config/openclaw/openclaw.json` (仅限 base_url)
 
 ## 🔄 变更记录
+
+### 2026-04-12 09:15:00 - 上游同步合并 (v2026.4.8 → v2026.4.11) 🚀
+
+- ✅ 从 upstream (openclaw/openclaw) 获取最新更新
+- ✅ 成功合并 upstream/main（提交 323e37c862）
+- ✅ 版本更新: v2026.4.8 → **v2026.4.11**
+- ✅ 解决 4 个合并冲突：
+  - `.agents/skills/openclaw-parallels-smoke/SKILL.md` - 接受上游
+  - `ui/src/ui/chat/grouped-render.ts` - 接受上游
+  - `ui/src/ui/chat/tool-cards.ts` - 接受上游
+  - `ui/src/ui/views/markdown-sidebar.ts` - 接受上游
+- ✅ 修复 lint 错误：添加 eslint-disable 注释到 `extensions/codex/src/app-server/event-projector.ts`
+- 🔧 主要上游更新：
+  - **新功能**：
+    - GPT-5.4 Codex Agentic Parity 支持
+    - Rich Output Protocol 协议文档
+    - 视频生成工具增强
+    - Microsoft Teams 渠道改进
+    - OpenAI 提供商 heartbeat 指南
+  - **架构重构**：
+    - UI 组件大规模重构（消息渲染、工具卡片、侧边栏）
+    - 插件清单架构更新
+    - Agent Harness SDK 更新
+  - **Bug 修复**：
+    - 多个运行时稳定性修复
+    - Shell 执行器改进
+    - Talk Mode 运行时优化
+  - **文档更新**：
+    - 新增 GPT-5.4 Codex 平等性维护者指南
+    - 视频生成工具文档更新
+    - 配置参考文档更新
+- 📊 统计：1,753 个文件变更，71,070 行新增，18,559 行删除
+- 🔗 Git 同步：合并 upstream/main (323e37c862) 到本地
+- 📈 保留本地 Serper/Tavily 搜索扩展和 ETM API 工具本地修改
 
 ### 2026-04-08 22:00:00 - 上游同步合并 (v2026.4.5 → v2026.4.8) 🚀
 
