@@ -1,0 +1,62 @@
+npm warn Unknown project config "node-linker". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.
+🔍 IMA URL提取 - 完整自动化诊断
+============================================================
+
+将测试多种方法，每种方法都会截图记录
+
+1️⃣ 激活 ima.copilot
+📸 初始截图: /Users/berton/Github/OpenClaw/diag-00-initial-1775984344793.png
+
+
+📋 测试: 01-single-click-600-350
+============================================================
+❌ 失败。剪贴板: AI...
+📸 截图: /Users/berton/Github/OpenClaw/diag-01-single-click-600-350-1775984350378.png
+
+
+📋 测试: 02-double-click-600-350
+============================================================
+❌ 失败。剪贴板: AI...
+📸 截图: /Users/berton/Github/OpenClaw/diag-02-double-click-600-350-1775984356671.png
+
+
+📋 测试: 03-arrow-down-enter
+============================================================
+❌ 失败。剪贴板: AI...
+📸 截图: /Users/berton/Github/OpenClaw/diag-03-arrow-down-enter-1775984363958.png
+
+
+📋 测试: 04-multiple-positions
+============================================================
+❌ 失败。剪贴板: AI...
+📸 截图: /Users/berton/Github/OpenClaw/diag-04-multiple-positions-1775984370277.png
+
+
+📋 测试: 05-tab-navigation
+============================================================
+❌ 失败。剪贴板: AI...
+📸 截图: /Users/berton/Github/OpenClaw/diag-05-tab-navigation-1775984379519.png
+
+
+============================================================
+📊 诊断报告
+============================================================
+
+总测试方法: 5
+成功方法: 0
+失败方法: 5
+
+❌ 所有方法都失败了
+
+💡 建议检查:
+   1. ima.copilot 是否已打开AI知识库
+   2. 文章列表是否可见
+   3. 是否有文章可以点击
+   4. 查看截图了解实际界面状态
+
+
+📁 所有截图文件:
+   ls -lt diag-*.png
+
+📄 详细报告已保存: /Users/berton/Github/OpenClaw/diagnostic-report.json
+

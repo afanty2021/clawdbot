@@ -1,0 +1,7 @@
+{
+  "appPath": null,
+  "appType": "unknown",
+  "dataPaths": [],
+  "possibleDbFiles": [],
+  "summary": "# iMa 应用信息摘要\n\n**探索时间**: 2026/4/12 15:23:43\n\n## 应用信息\n\n- **应用路径**: 未找到\n- **应用类型**: unknown\n\n## 数据目录\n\n未找到数据目录\n\n## 数据库文件\n\n未找到数据库文件\n\n## 推荐的下一步操作\n\n### 方案 3: 使用 Accessibility API\n1. 授予终端辅助功能权限\n2. 运行界面探索脚本\n3. 提取可见的界面元素\n\n"
+}

@@ -1,0 +1,16 @@
+[
+  {
+    "name": "ima.copilot",
+    "path": "/Applications/ima.copilot.app",
+    "type": "native",
+    "dataPaths": [],
+    "dbFiles": []
+  },
+  {
+    "name": "微信读书",
+    "path": "/Applications/微信读书.app",
+    "type": "unknown",
+    "dataPaths": [],
+    "dbFiles": []
+  }
+]

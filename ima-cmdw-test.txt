@@ -1,0 +1,5 @@
+1|392|NEW|https://mp.weixin.qq.com/s?__biz=MjM5ODYwMjI2MA==&mid=264980
+2|442|DUP
+3|492|NEW|https://mp.weixin.qq.com/s?__biz=MzIyNzQyNzgxNQ==&mid=224748
+4|542|NEW|https://mp.weixin.qq.com/s?chksm=fb171886cc609190962fb30e172
+5|592|FAIL

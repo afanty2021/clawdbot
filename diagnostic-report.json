@@ -1,0 +1,32 @@
+[
+  {
+    "method": "01-single-click-600-350",
+    "screenshot": "/Users/berton/Github/OpenClaw/diag-01-single-click-600-350-1775984350378.png",
+    "clipboard": "AI",
+    "success": false
+  },
+  {
+    "method": "02-double-click-600-350",
+    "screenshot": "/Users/berton/Github/OpenClaw/diag-02-double-click-600-350-1775984356671.png",
+    "clipboard": "AI",
+    "success": false
+  },
+  {
+    "method": "03-arrow-down-enter",
+    "screenshot": "/Users/berton/Github/OpenClaw/diag-03-arrow-down-enter-1775984363958.png",
+    "clipboard": "AI",
+    "success": false
+  },
+  {
+    "method": "04-multiple-positions",
+    "screenshot": "/Users/berton/Github/OpenClaw/diag-04-multiple-positions-1775984370277.png",
+    "clipboard": "AI",
+    "success": false
+  },
+  {
+    "method": "05-tab-navigation",
+    "screenshot": "/Users/berton/Github/OpenClaw/diag-05-tab-navigation-1775984379519.png",
+    "clipboard": "AI",
+    "success": false
+  }
+]

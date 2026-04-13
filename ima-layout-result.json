@@ -1,0 +1,25 @@
+{
+  "timestamp": "2026-04-12T07:58:28.157Z",
+  "url": "https://mp.weixin.qq.com/s?chksm=fb171886cc609190962fb30e1725709a4c99c9e727d4aabc14b1a388fef88d79d68d7a430823&exptype=unsubscribed_card_recommend_article_u2i_mainprocess_coarse_sort_tlfeeds&ranksessionid=1775902969_8&req_id=1775913178183652&scene=169&mid=2247486441&sn=6b1023686aa7b238e59d2dc5f8ef1d5b&idx=1&__biz=MzU0MjcyMTUzNg%3D%3D&sessionid=1775887484&subscene=200&clicktime=1775913333&enterid=1775913333&flutter_pos=79&biz_enter_id=5&jumppath=20020_1775913204857%2C1104_1775913218594%2C20020_1775913224160%2C1104_1775913321808&jumppathdepth=4&ascene=56&devicetype=iOS26.4&version=18004634&nettype=WIFI&abtest_cookie=AAACAA%3D%3D&lang=zh_CN&countrycode=CN&fontScale=100&exportkey=n_ChQIAhIQ2LUbH455kJmVf7mF0N2lNxLXAQIE97dBBAEAAAAAADUkAlnIJZ8AAAAOpnltbLcz9gKNyK89dVj0AlQ9HJLku8lfauUbs1u%2FTWo%2FNjCH%2BBJDIjeMiSuOMjPZmQhEc0N01pxOeBo99vomLubgHxRCvOCsVmvGkrk9bVnJLUorEM8y0lnEG8IN%2BHNpRtnE9%2F6cjshpyrqm%2B0tYf%2FMp%2BVb5GtGVr00UE6wgjlcDOeQcdWQ8xzzinJV7VS3uQLGq6F63JM8asVCavSPiq9OUVeaz4KeUdKwzO1KvlljIf6PubW5FoqW46k6aT%2Fec&pass_ticket=wygfuMTrd4O9h7y9%2BGrIHuq490%2Bn%2F0LQnij7nb%2FuT0vKGxHaMM911V5SClXtBrdq&wx_header=3",
+  "method": "layout_aware_automation",
+  "layout": {
+    "knowledgeBaseIcon": {
+      "x": 60,
+      "y": 120
+    },
+    "knowledgeBaseList": {
+      "xMin": 200,
+      "xMax": 400,
+      "yRange": "150-300"
+    },
+    "articleList": {
+      "xMin": 400,
+      "xMax": 800,
+      "yRange": "150-500"
+    },
+    "addressBar": {
+      "x": 960,
+      "y": 100
+    }
+  }
+}

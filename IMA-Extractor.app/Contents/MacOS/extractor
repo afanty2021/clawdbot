@@ -1,0 +1,265 @@
+#!/usr/bin/env osascript
+
+-- ============================================================
+-- IMA 文章链接完全自动化提取器 v9
+-- 核心改进: 使用 cliclick 真实鼠标事件替代 AppleScript click at
+-- 策略: 固定位置点击 + 下箭头滚动列表
+-- ============================================================
+-- 关键坐标（AppleScript逻辑坐标）：
+--   文章标题: (668, 392) - 第一篇文章（固定位置）
+--   地址栏: (755, 96)
+-- ============================================================
+
+property ResultFile : "/Users/berton/Github/OpenClaw/ima-extracted-articles.json"
+property ArticleTitleX : 668
+property FirstArticleY : 392
+property AddressBarX : 755
+property AddressBarY : 96
+property TargetCount : 1279
+property MaxConsecutiveFailures : 30
+property CliclickPath : "/opt/homebrew/bin/cliclick"
+
+on run
+	log "IMA 全自动提取器 v9 (cliclick)"
+	log "============================================================"
+	log "策略: cliclick真实鼠标 + 固定位置 + 下箭头滚动"
+	log "标题位置: (" & ArticleTitleX & ", " & FirstArticleY & ")"
+	log "地址栏: (" & AddressBarX & ", " & AddressBarY & ")"
+	log "目标: " & TargetCount & " 篇"
+	log "============================================================"
+
+	-- 读取已提取的URL（支持断点续传）
+	set extractedUrls to my loadExistingResults()
+	set startCount to count of extractedUrls
+
+	log "已提取: " & startCount & " 篇"
+	log ""
+
+	-- === 第一步: 激活 ima.copilot ===
+	log "激活 ima.copilot..."
+	tell application "ima.copilot"
+		activate
+	end tell
+	delay 3
+
+	-- === 第二步: 滚动到上次断点位置 ===
+	if startCount > 0 then
+		log "滚动到上次断点位置..."
+		tell application "System Events"
+			tell process "ima.copilot"
+				set frontmost to true
+				delay 0.3
+				-- 按 Esc 确保回到列表
+				key code 53
+				delay 1.5
+				-- 用下箭头滚动到上次位置
+				repeat startCount times
+					key code 125 -- 下箭头
+					delay 0.05
+				end repeat
+				delay 1.0
+			end tell
+		end tell
+		log "已滚动到第 " & (startCount + 1) & " 篇位置"
+	end if
+
+	-- === 第三步: 开始遍历 ===
+	log ""
+	log "开始遍历文章列表..."
+	log ""
+
+	set extractedCount to startCount
+	set consecutiveFailures to 0
+	set articleIndex to startCount + 1
+
+	repeat while articleIndex ≤ TargetCount and consecutiveFailures < MaxConsecutiveFailures
+
+		log "#" & articleIndex
+
+		-- 点击文章标题（始终点击固定位置，使用cliclick）
+		set articleUrl to my clickArticleAndExtractURL(ArticleTitleX, FirstArticleY)
+
+		if articleUrl starts with "http" then
+			if articleUrl is not in extractedUrls then
+				set end of extractedUrls to articleUrl
+				set extractedCount to extractedCount + 1
+				my appendResult(articleIndex, articleUrl)
+				set consecutiveFailures to 0
+				log "   OK #" & extractedCount & " " & text 1 thru 50 of articleUrl & "..."
+			else
+				log "   SKIP 已存在"
+				set consecutiveFailures to consecutiveFailures + 1
+			end if
+		else
+			log "   FAIL 无URL"
+			set consecutiveFailures to consecutiveFailures + 1
+		end if
+
+		-- 按Esc返回列表
+		my goBack()
+		delay 0.5
+
+		-- 用下箭头将列表滚动到下一篇文章
+		tell application "System Events"
+			tell process "ima.copilot"
+				set frontmost to true
+				delay 0.2
+				key code 125 -- 下箭头，滚动列表
+				delay 0.3
+			end tell
+		end tell
+
+		set articleIndex to articleIndex + 1
+
+		-- 进度报告（每20篇）
+		if articleIndex mod 20 is 0 then
+			log ""
+			log "--- " & extractedCount & "/" & TargetCount & " (" & (extractedCount * 100 / TargetCount) div 1 & "%) 连续失败:" & consecutiveFailures & " ---"
+			log ""
+		end if
+
+	end repeat
+
+	-- === 最终报告 ===
+	log ""
+	log "============================================================"
+	log "提取完成！"
+	log "============================================================"
+	log "成功: " & extractedCount & " 篇"
+	log "连续失败: " & consecutiveFailures & " 次"
+	log "文件: " & ResultFile
+	log "============================================================"
+
+end run
+
+-- ============================================================
+-- 点击文章并提取URL（使用cliclick真实鼠标事件）
+-- ============================================================
+on clickArticleAndExtractURL(x, y)
+	set extractedUrl to ""
+
+	-- 确保ima.copilot在前台
+	tell application "ima.copilot"
+		activate
+	end tell
+	delay 0.5
+
+	-- 1. 用cliclick点击文章标题（真实鼠标事件）
+	do shell script CliclickPath & " c:" & x & "," & y
+	delay 4.0
+
+	-- 2. 用cliclick点击地址栏
+	do shell script CliclickPath & " c:" & AddressBarX & "," & AddressBarY
+	delay 0.5
+
+	-- 3. 全选并复制（用System Events发键盘）
+	tell application "System Events"
+		tell process "ima.copilot"
+			keystroke "a" using command down
+			delay 0.3
+			keystroke "c" using command down
+			delay 0.5
+		end tell
+	end tell
+
+	-- 4. 获取剪贴板内容
+	try
+		set extractedUrl to the clipboard as text
+	on error
+		set extractedUrl to ""
+	end try
+
+	return extractedUrl
+end clickArticleAndExtractURL
+
+-- ============================================================
+-- 按Esc返回文章列表
+-- ============================================================
+on goBack()
+	tell application "System Events"
+		tell process "ima.copilot"
+			key code 53 -- Esc
+			delay 1.5
+		end tell
+	end tell
+end goBack
+
+-- ============================================================
+-- 加载已有结果
+-- ============================================================
+on loadExistingResults()
+	set urlList to {}
+	try
+		set fileContents to read POSIX file ResultFile
+		set oldDelimiters to AppleScript's text item delimiters
+		set AppleScript's text item delimiters to "\"url\": \""
+		set urlItems to text items of fileContents
+		set AppleScript's text item delimiters to "\""
+		repeat with i from 2 to count of urlItems
+			set thisUrl to text item 1 of (item i of urlItems)
+			set end of urlList to thisUrl
+		end repeat
+		set AppleScript's text item delimiters to oldDelimiters
+	on error
+		my writeToFile("{\"timestamp\": \"" & my getISODate() & "\", \"total\": 0, \"articles\": []}", ResultFile)
+	end try
+	return urlList
+end loadExistingResults
+
+-- ============================================================
+-- 追加单条结果
+-- ============================================================
+on appendResult(index, url)
+	try
+		set fileContents to read POSIX file ResultFile
+		set oldDelimiters to AppleScript's text item delimiters
+		set AppleScript's text item delimiters to "]"
+		set parts to text items of fileContents
+		set AppleScript's text item delimiters to oldDelimiters
+
+		if (count of parts) < 2 then
+			set newContent to "{\"timestamp\": \"" & my getISODate() & "\", \"total\": 1, \"articles\": [{\"index\": " & index & ", \"url\": \"" & url & "\", \"ts\": \"" & my getISODate() & "\"}]}"
+		else
+			set prefix to item 1 of parts
+			set AppleScript's text item delimiters to "\"url\": \""
+			set totalUrls to (count of text items of fileContents) - 1
+			set AppleScript's text item delimiters to oldDelimiters
+			set newArticle to "{\"index\": " & index & ", \"url\": \"" & url & "\", \"ts\": \"" & my getISODate() & "\"}"
+			set newContent to "{\"timestamp\": \"" & my getISODate() & "\", \"total\": " & (totalUrls + 1) & ", \"articles\": [" & prefix & ", " & newArticle & "]}"
+		end if
+
+		my writeToFile(newContent, ResultFile)
+	on error errMsg
+		log "   WARN 保存失败: " & errMsg
+	end try
+end appendResult
+
+-- ============================================================
+-- 写入文件
+-- ============================================================
+on writeToFile(content, filePath)
+	try
+		set fileId to open for access POSIX file filePath with write permission
+		set eof of fileId to 0
+		write content to fileId
+		close access fileId
+	on error
+		try
+			close access POSIX file filePath
+		end try
+	end try
+end writeToFile
+
+-- ============================================================
+-- 获取ISO日期
+-- ============================================================
+on getISODate()
+	set currentDate to current date
+	set y to year of currentDate as text
+	set m to text -2 thru -1 of ("0" & (month of currentDate as integer) as text)
+	set d to text -2 thru -1 of ("0" & (day of currentDate) as text)
+	set h to text -2 thru -1 of ("0" & (hours of currentDate) as text)
+	set mn to text -2 thru -1 of ("0" & (minutes of currentDate) as text)
+	set s to text -2 thru -1 of ("0" & (seconds of currentDate) as text)
+	return y & "-" & m & "-" & d & "T" & h & ":" & mn & ":" & s & ".000Z"
+end getISODate

@@ -154,6 +154,7 @@ export class CodexAppServerEventProjector {
       (turnFailed ? (this.completedTurn?.error?.message ?? "codex app-server turn failed") : null);
     return {
       aborted: this.aborted || turnInterrupted,
+      externalAbort: false,
       timedOut: false,
       idleTimedOut: false,
       timedOutDuringCompaction: false,
