@@ -108,7 +108,7 @@ function findPossibleDbFiles(basePaths: string[]): string[] {
   console.log('\n🔍 搜索数据库文件...\n');
 
   for (const basePath of basePaths) {
-    if (!fs.existsSync(basePath)) continue;
+    if (!fs.existsSync(basePath)) {continue;}
 
     try {
       const files = fs.readdirSync(basePath);

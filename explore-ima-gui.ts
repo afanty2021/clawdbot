@@ -84,7 +84,7 @@ class IMAExplorer {
    * 检查登录状态
    */
   async checkLoginStatus(): Promise<boolean> {
-    if (!this.page) return false;
+    if (!this.page) {return false;}
 
     // 检查是否有登录按钮（未登录状态）
     const loginButton = await this.page.$('text=登录');
@@ -303,7 +303,7 @@ class IMAExplorer {
    * 滚动页面加载更多内容
    */
   async scrollAndLoadMore(maxScrolls: number = 5) {
-    if (!this.page) return;
+    if (!this.page) {return;}
 
     console.log('📜 滚动加载更多内容...');
 

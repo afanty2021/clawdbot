@@ -232,7 +232,7 @@ class LayoutAwareExtractor {
    * 步骤 4: 从地址栏提取链接
    */
   extractFromAddressBar(verbose: boolean = true): string {
-    if (verbose) console.log('📋 步骤 4: 从地址栏提取链接');
+    if (verbose) {console.log('📋 步骤 4: 从地址栏提取链接');}
 
     const script = `
       tell application "System Events"
@@ -260,14 +260,14 @@ class LayoutAwareExtractor {
       const clipboard = execSync('pbpaste', { encoding: 'utf-8' }).trim();
 
       if (clipboard.startsWith('http')) {
-        if (verbose) console.log(`✅ 成功提取链接: ${clipboard.substring(0, 80)}...\n`);
+        if (verbose) {console.log(`✅ 成功提取链接: ${clipboard.substring(0, 80)}...\n`);}
         return clipboard;
       } else {
-        if (verbose) console.log(`⚠️  剪贴板内容: ${clipboard.substring(0, 100)}...\n`);
+        if (verbose) {console.log(`⚠️  剪贴板内容: ${clipboard.substring(0, 100)}...\n`);}
         return '';
       }
     } catch (error) {
-      if (verbose) console.log('❌ 提取失败\n');
+      if (verbose) {console.log('❌ 提取失败\n');}
       return '';
     }
   }

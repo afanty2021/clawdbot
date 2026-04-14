@@ -80,10 +80,10 @@ function findDbFiles(basePaths: string[]): string[] {
   const dbFiles: string[] = [];
 
   for (const basePath of basePaths) {
-    if (!fs.existsSync(basePath)) continue;
+    if (!fs.existsSync(basePath)) {continue;}
 
     const searchDir = (dir: string, depth: number = 0) => {
-      if (depth > 3) return; // 限制递归深度
+      if (depth > 3) {return;} // 限制递归深度
 
       try {
         const files = fs.readdirSync(dir);

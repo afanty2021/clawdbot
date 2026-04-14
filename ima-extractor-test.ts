@@ -281,7 +281,7 @@ class IMAExtractorTester {
     results.forEach((result, index) => {
       const status = result.passed ? '✅ 通过' : '❌ 失败';
       console.log(`${index + 1}. ${result.name}: ${status}`);
-      if (result.passed) passedCount++;
+      if (result.passed) {passedCount++;}
     });
 
     console.log('');

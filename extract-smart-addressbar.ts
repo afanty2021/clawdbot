@@ -223,9 +223,9 @@ class SmartAddressBarExtractor {
 
     // 尝试所有方法
     url = this.method1_FocusAddressBar();
-    if (!url) url = this.method2_AltD();
-    if (!url) url = this.method3_UIElements();
-    if (!url) url = this.method4_WindowTitle();
+    if (!url) {url = this.method2_AltD();}
+    if (!url) {url = this.method3_UIElements();}
+    if (!url) {url = this.method4_WindowTitle();}
 
     if (url) {
       // 验证

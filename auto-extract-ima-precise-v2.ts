@@ -196,7 +196,7 @@ class PreciseLayoutExtractor {
    * 地址栏位置：x: 0-1920, y: 0-30
    */
   extractFromAddressBar(verbose: boolean = true): string {
-    if (verbose) console.log('📋 从地址栏提取链接...');
+    if (verbose) {console.log('📋 从地址栏提取链接...');}
 
     // 地址栏在顶部，点击中央位置
     const script = `
@@ -236,7 +236,7 @@ class PreciseLayoutExtractor {
         return '';
       }
     } catch (error) {
-      if (verbose) console.log('❌ 提取失败\n');
+      if (verbose) {console.log('❌ 提取失败\n');}
       return '';
     }
   }
@@ -295,7 +295,7 @@ class PreciseLayoutExtractor {
     let clicked = false;
     for (let i = 0; i < 5; i++) {
       clicked = this.clickArticleTitle(i);
-      if (clicked) break;
+      if (clicked) {break;}
     }
 
     if (clicked) {

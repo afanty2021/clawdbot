@@ -41,7 +41,7 @@ console.log('\n' + '='.repeat(60));
 
 // 递归搜索函数
 function searchDirectory(dir: string, depth: number = 0) {
-  if (depth > 5) return; // 限制深度
+  if (depth > 5) {return;} // 限制深度
 
   try {
     const files = fs.readdirSync(dir);
@@ -107,7 +107,7 @@ if (results.length === 0) {
   // 按类型分组
   const byType = results.reduce((acc, file) => {
     const type = file.type || 'other';
-    if (!acc[type]) acc[type] = [];
+    if (!acc[type]) {acc[type] = [];}
     acc[type].push(file);
     return acc;
   }, {} as Record<string, DataFile[]>);

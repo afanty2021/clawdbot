@@ -41,15 +41,15 @@ class SmartIMAExtractor {
 
       // 方法1: 通过名称查找并点击
       const method1 = this.clickByName(targetName);
-      if (method1) return true;
+      if (method1) {return true;}
 
       // 方法2: 通过文本内容查找
       const method2 = this.clickByTextContent(targetName);
-      if (method2) return true;
+      if (method2) {return true;}
 
       // 方法3: 通过坐标推测
       const method3 = this.clickByInferredPosition(targetName);
-      if (method3) return true;
+      if (method3) {return true;}
 
       this.delay(500);
     }
@@ -148,7 +148,7 @@ class SmartIMAExtractor {
     };
 
     const pos = positions[target];
-    if (!pos) return false;
+    if (!pos) {return false;}
 
     const script = `
       tell application "System Events"
