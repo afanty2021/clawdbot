@@ -1,8 +1,10 @@
 import fs from "node:fs";
-import JSON5 from "json5";
+import { createRequire } from "node:module";
 import { getCommandPathWithRootOptions } from "../cli/argv.js";
 import { resolveConfigPath } from "../config/paths.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+
+const require = createRequire(import.meta.url);
 
 type LoggingConfig = OpenClawConfig["logging"];
 
@@ -34,6 +36,8 @@ export function readLoggingConfig(): LoggingConfig | undefined {
     if (!fs.existsSync(configPath)) {
       return undefined;
     }
+    // Lazy-load json5 to avoid pulling it into the CLI bootstrap static graph.
+    const JSON5 = require("json5");
     const parsed = JSON5.parse(fs.readFileSync(configPath, "utf8"));
     const logging = isObjectRecord(parsed) ? parsed.logging : undefined;
     const resolved = isObjectRecord(logging) ? (logging as LoggingConfig) : undefined;
