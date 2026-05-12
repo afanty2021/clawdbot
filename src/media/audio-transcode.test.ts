@@ -12,6 +12,16 @@ vi.mock("./ffmpeg-exec.js", () => ({
 
 import { transcodeAudioBufferToOpus } from "./audio-transcode.js";
 
+type MockWithCalls = { mock: { calls: unknown[][] } };
+
+function firstMockCall(mock: MockWithCalls, label: string): unknown[] {
+  const call = mock.mock.calls.at(0);
+  if (!call) {
+    throw new Error(`expected ${label} call`);
+  }
+  return call;
+}
+
 describe("transcodeAudioBufferToOpus", () => {
   afterEach(() => {
     runFfmpegMock.mockReset();
@@ -43,10 +53,32 @@ describe("transcodeAudioBufferToOpus", () => {
       }),
     ).resolves.toEqual(Buffer.from("opus-output"));
 
-    expect(runFfmpegMock).toHaveBeenCalledWith(
-      expect.arrayContaining(["-c:a", "libopus", "-b:a", "64k", "-ar", "48000", "-ac", "1"]),
+    expect(runFfmpegMock).toHaveBeenCalledTimes(1);
+    expect(firstMockCall(runFfmpegMock, "runFfmpeg")).toStrictEqual([
+      [
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-y",
+        "-i",
+        capturedInputPath,
+        "-vn",
+        "-sn",
+        "-dn",
+        "-c:a",
+        "libopus",
+        "-b:a",
+        "64k",
+        "-ar",
+        "48000",
+        "-ac",
+        "1",
+        "-f",
+        "opus",
+        capturedOutputPath,
+      ],
       { timeoutMs: 1234 },
-    );
+    ]);
     const tempRoot = realpathSync(resolvePreferredOpenClawTmpDir());
     expect(capturedInputPath?.startsWith(path.join(tempRoot, "tts-test-"))).toBe(true);
     expect(capturedInputPath ? existsSync(capturedInputPath) : true).toBe(false);

@@ -16,7 +16,7 @@ describe("ProxyConfigSchema", () => {
   });
 
   it("accepts an empty object", () => {
-    expect(ProxyConfigSchema.parse({})).toEqual({});
+    expect(ProxyConfigSchema.parse({})).toStrictEqual({});
   });
 
   it("accepts a full valid config", () => {
@@ -25,7 +25,7 @@ describe("ProxyConfigSchema", () => {
       proxyUrl: "http://127.0.0.1:3128",
       loopbackMode: "gateway-only",
     });
-    expect(result).toMatchObject({
+    expect(result).toEqual({
       enabled: true,
       proxyUrl: "http://127.0.0.1:3128",
       loopbackMode: "gateway-only",

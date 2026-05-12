@@ -12,7 +12,6 @@ import {
 
 function parseSpecOrThrow(spec: string) {
   const parsed = parseRegistryNpmSpec(spec);
-  expect(parsed).toEqual(expect.any(Object));
   if (parsed === null) {
     throw new Error(`Expected ${spec} to parse`);
   }

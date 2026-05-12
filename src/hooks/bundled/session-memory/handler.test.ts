@@ -137,6 +137,26 @@ async function runNewWithPreviousSession(params: {
   return { tempDir, files, memoryContent };
 }
 
+function isAsciiDigits(value: string): boolean {
+  return /^[0-9]+$/.test(value);
+}
+
+function expectDatedMemoryFile(files: string[], slug: string) {
+  expect(files).toHaveLength(1);
+  const filename = files[0];
+  if (!filename) {
+    throw new Error("expected one session memory file");
+  }
+  const suffix = `-${slug}.md`;
+  expect(filename.endsWith(suffix)).toBe(true);
+  const datePrefix = filename.slice(0, -suffix.length);
+  const [year, month, day] = datePrefix.split("-");
+  expect([year?.length, month?.length, day?.length]).toEqual([4, 2, 2]);
+  expect(year ? isAsciiDigits(year) : false).toBe(true);
+  expect(month ? isAsciiDigits(month) : false).toBe(true);
+  expect(day ? isAsciiDigits(day) : false).toBe(true);
+}
+
 async function createSessionMemoryWorkspace(params?: {
   activeSession?: { name: string; content: string };
 }): Promise<{ tempDir: string; sessionsDir: string; activeSessionFile?: string }> {
@@ -193,6 +213,16 @@ function expectMemoryConversation(params: {
   }
 }
 
+async function expectPathMissing(targetPath: string): Promise<void> {
+  try {
+    await fs.access(targetPath);
+  } catch (error) {
+    expect((error as NodeJS.ErrnoException).code).toBe("ENOENT");
+    return;
+  }
+  throw new Error(`expected path to be missing: ${targetPath}`);
+}
+
 describe("session-memory hook", () => {
   it("skips non-command events", async () => {
     const tempDir = await createCaseWorkspace("workspace");
@@ -205,7 +235,7 @@ describe("session-memory hook", () => {
 
     // Memory directory should not be created for non-command events
     const memoryDir = path.join(tempDir, "memory");
-    await expect(fs.access(memoryDir)).rejects.toThrow();
+    await expectPathMissing(memoryDir);
   });
 
   it("skips commands other than new", async () => {
@@ -219,7 +249,7 @@ describe("session-memory hook", () => {
 
     // Memory directory should not be created for other commands
     const memoryDir = path.join(tempDir, "memory");
-    await expect(fs.access(memoryDir)).rejects.toThrow();
+    await expectPathMissing(memoryDir);
   });
 
   it("creates memory file with session content on /new command", async () => {
@@ -298,7 +328,7 @@ describe("session-memory hook", () => {
               },
             }) satisfies OpenClawConfig,
         });
-        expect(files).toEqual([expect.stringMatching(/^\d{4}-\d{2}-\d{2}-simple-math\.md$/)]);
+        expectDatedMemoryFile(files, "simple-math");
       },
     );
 
@@ -365,7 +395,7 @@ describe("session-memory hook", () => {
         await flushSessionMemoryWritesForTest();
 
         const files = await fs.readdir(path.join(tempDir, "memory"));
-        expect(files).toEqual([expect.stringMatching(/^\d{4}-\d{2}-\d{2}-slow-reset\.md$/)]);
+        expectDatedMemoryFile(files, "slow-reset");
       },
     );
   });
@@ -473,7 +503,7 @@ describe("session-memory hook", () => {
     expect(memoryContent).toContain("user: Remember this under Navi");
     expect(memoryContent).toContain("assistant: Stored in the bound workspace");
     expect(memoryContent).toContain("- **Session Key**: agent:navi:main");
-    await expect(fs.access(path.join(mainWorkspace, "memory"))).rejects.toThrow();
+    await expectPathMissing(path.join(mainWorkspace, "memory"));
   });
 
   it("filters out non-message entries (tool calls, system)", async () => {
@@ -768,7 +798,7 @@ describe("session-memory hook", () => {
     expect(memoryContent).toContain("user: Custom agent conversation");
     expect(memoryContent).toContain("assistant: Stored in agent workspace");
     // Verify memory did NOT leak to the default workspace
-    await expect(fs.access(path.join(defaultWorkspace, "memory"))).rejects.toThrow();
+    await expectPathMissing(path.join(defaultWorkspace, "memory"));
   });
 
   it("handles session files with fewer messages than requested", async () => {
