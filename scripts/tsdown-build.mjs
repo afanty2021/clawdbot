@@ -19,7 +19,7 @@ const ANSI_ESCAPE_RE = new RegExp(String.raw`\u001B\[[0-9;]*m`, "g");
 const HASHED_ROOT_JS_RE = /^(?<base>.+)-[A-Za-z0-9_-]+\.js$/u;
 const DEFAULT_CAPTURE_BYTES = 8 * 1024 * 1024;
 const DEFAULT_HEARTBEAT_MS = 30_000;
-const DEFAULT_TSDOWN_NODE_OPTIONS = "--max-old-space-size=6144";
+const DEFAULT_TSDOWN_NODE_OPTIONS = "--max-old-space-size=8192";
 const TERMINATION_GRACE_MS = 5_000;
 const TSDOWN_OUTPUT_ROOTS = ["dist", "dist-runtime"];
 const GENERATED_SOURCE_DECLARATION_PATHSPEC = ":(glob)extensions/**/*.d.ts";
@@ -257,17 +257,28 @@ export function createTsdownOutputScanner(params = {}) {
 
 export function resolveTsdownBuildInvocation(params = {}) {
   const env = resolveTsdownEnv(params.env ?? process.env);
+  const tsdownArgs = [
+    "--config-loader",
+    "unrun",
+    "--logLevel",
+    logLevel,
+    "--no-clean",
+    ...extraArgs,
+  ];
+  if (env.OPENCLAW_BUILD_ALL_NO_PNPM === "1") {
+    return {
+      command: params.nodeExecPath ?? process.execPath,
+      args: ["node_modules/tsdown/dist/run.mjs", ...tsdownArgs],
+      options: {
+        stdio: ["ignore", "pipe", "pipe"],
+        shell: false,
+        windowsVerbatimArguments: undefined,
+        env,
+      },
+    };
+  }
   const runner = resolvePnpmRunner({
-    pnpmArgs: [
-      "exec",
-      "tsdown",
-      "--config-loader",
-      "unrun",
-      "--logLevel",
-      logLevel,
-      "--no-clean",
-      ...extraArgs,
-    ],
+    pnpmArgs: ["exec", "tsdown", ...tsdownArgs],
     nodeExecPath: params.nodeExecPath ?? process.execPath,
     npmExecPath: params.npmExecPath ?? env.npm_execpath,
     comSpec: params.comSpec ?? env.ComSpec,

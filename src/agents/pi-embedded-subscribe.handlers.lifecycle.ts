@@ -120,6 +120,10 @@ export function handleAgentEnd(ctx: EmbeddedPiSubscribeContext): void | Promise<
     const terminalMeta = {
       ...(ctx.state.terminalStopReason ? { stopReason: ctx.state.terminalStopReason } : {}),
       ...(ctx.state.yielded === true ? { yielded: true } : {}),
+      ...(ctx.state.timeoutPhase ? { timeoutPhase: ctx.state.timeoutPhase } : {}),
+      ...(typeof ctx.state.providerStarted === "boolean"
+        ? { providerStarted: ctx.state.providerStarted }
+        : {}),
     };
     if (isError) {
       emitAgentEvent({
@@ -146,11 +150,12 @@ export function handleAgentEnd(ctx: EmbeddedPiSubscribeContext): void | Promise<
       });
       return;
     }
+    const successPhase = ctx.params.terminalLifecyclePhase ?? "end";
     emitAgentEvent({
       runId: ctx.params.runId,
       stream: "lifecycle",
       data: {
-        phase: "end",
+        phase: successPhase,
         ...terminalMeta,
         ...(livenessState ? { livenessState } : {}),
         ...(replayInvalid ? { replayInvalid } : {}),
@@ -160,7 +165,7 @@ export function handleAgentEnd(ctx: EmbeddedPiSubscribeContext): void | Promise<
     void ctx.params.onAgentEvent?.({
       stream: "lifecycle",
       data: {
-        phase: "end",
+        phase: successPhase,
         ...terminalMeta,
         ...(livenessState ? { livenessState } : {}),
         ...(replayInvalid ? { replayInvalid } : {}),
